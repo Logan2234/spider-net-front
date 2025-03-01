@@ -1,14 +1,33 @@
 <script lang="ts">
     import Card from '$lib/components/card.svelte';
+    import type { StatsOverview } from '$lib/dtos/statsOverview';
+    import { createWebSocket } from '$lib/stores/websocket';
+    import { onMount } from 'svelte';
 
     const cardStyle = 'p-6 text-center text-2xl max-w-xl';
 
     let url: string = $state('');
     let error: string = $state('');
-    let numberInQueue: number = $state(0);
-    let numberOfDomains: number = $state(0);
-    let numberOfLinks: number = $state(0);
-    let numberOfVisitedSites: number = $state(0);
+
+    let stats: StatsOverview = $state({
+        totalDomains: 0,
+        totalInQueue: 0,
+        totalLinks: 0,
+        totalVisited: 0
+    });
+
+    onMount(() => {
+        const { subscribe } = createWebSocket<StatsOverview>(
+            'wss://localhost:4000',
+            true,
+            'dashboard'
+        );
+
+        subscribe((data: StatsOverview[]) => {
+            if (data.length === 0) return;
+            stats = data[0];
+        });
+    });
 
     const addInQueue = async () => {
         const data = await fetch('https://localhost:4000/api/v1/queue/', {
@@ -52,24 +71,6 @@
             alert('Action successful: ' + json.success);
         }
     };
-
-    const load = async () => {
-        try {
-            const data = await fetch('https://localhost:4000/api/v1/stats', { method: 'GET' });
-
-            if (data.ok) {
-                const res = await data.json();
-                numberInQueue = res?.numberInQueue || 0;
-                numberOfDomains = res?.numberOfDomains || 0;
-                numberOfLinks = res?.numberOfLinks || 0;
-                numberOfVisitedSites = res?.numberOfVisitedSites || 0;
-            }
-        } catch (err: any) {
-            error = err.message;
-        }
-    };
-
-    setInterval(load, 1000);
 </script>
 
 <input type="url" bind:value={url} placeholder="Enter the URL to scrap" />
@@ -80,27 +81,27 @@
     <p class="text-red-500">{error}</p>
 {/if}
 
-{#await load()}
-    ...
-{:then _}
+{#if stats}
     <div class="flex flex-row gap-4">
         <Card title="Domains" subtitle="Number of known domains">
-            <div class={cardStyle}>{numberOfDomains}</div>
+            <div class={cardStyle}>{stats.totalDomains}</div>
         </Card>
 
         <Card title="Queue" subtitle="Number of urls in queue">
-            <div class={cardStyle}>{numberInQueue}</div>
+            <div class={cardStyle}>{stats.totalInQueue}</div>
         </Card>
 
         <Card title="Visited" subtitle="Number of visited urls">
-            <div class={cardStyle}>{numberOfVisitedSites}</div>
+            <div class={cardStyle}>{stats.totalVisited}</div>
         </Card>
 
         <Card title="Links" subtitle="Number of links found">
-            <div class={cardStyle}>{numberOfLinks}</div>
+            <div class={cardStyle}>{stats.totalLinks}</div>
         </Card>
     </div>
-{/await}
 
-<button onclick={startCrawling} disabled={numberInQueue === 0}>Start crawling</button>
-<button onclick={stopCrawling}>Stop crawling</button>
+    <button onclick={startCrawling} disabled={stats.totalInQueue === 0}>Start crawling</button>
+    <button onclick={stopCrawling}>Stop crawling</button>
+{:else}
+    <p>Loading...</p>
+{/if}
