@@ -1,6 +1,8 @@
 <script lang="ts">
     import Card from '$lib/components/card.svelte';
 
+    const cardStyle = 'p-6 text-center text-2xl max-w-xl';
+
     let url: string = $state('');
     let error: string = $state('');
     let numberInQueue: number = $state(0);
@@ -52,14 +54,18 @@
     };
 
     const load = async () => {
-        const data = await fetch('https://localhost:4000/api/v1/stats', { method: 'GET' });
+        try {
+            const data = await fetch('https://localhost:4000/api/v1/stats', { method: 'GET' });
 
-        if (data.ok) {
-            const res = await data.json();
-            numberInQueue = res?.numberInQueue || 0;
-            numberOfDomains = res?.numberOfDomains || 0;
-            numberOfLinks = res?.numberOfLinks || 0;
-            numberOfVisitedSites = res?.numberOfVisitedSites || 0;
+            if (data.ok) {
+                const res = await data.json();
+                numberInQueue = res?.numberInQueue || 0;
+                numberOfDomains = res?.numberOfDomains || 0;
+                numberOfLinks = res?.numberOfLinks || 0;
+                numberOfVisitedSites = res?.numberOfVisitedSites || 0;
+            }
+        } catch (err: any) {
+            error = err.message;
         }
     };
 
@@ -74,27 +80,27 @@
     <p class="text-red-500">{error}</p>
 {/if}
 
-<div class="flex flex-row gap-4">
-    {#await load()}
-        ...
-    {:then _}
+{#await load()}
+    ...
+{:then _}
+    <div class="flex flex-row gap-4">
         <Card title="Domains" subtitle="Number of known domains">
-            <div class="p-6 text-center text-2xl">{numberOfDomains}</div>
+            <div class={cardStyle}>{numberOfDomains}</div>
         </Card>
 
         <Card title="Queue" subtitle="Number of urls in queue">
-            <div class="p-6 text-center text-2xl">{numberInQueue}</div>
+            <div class={cardStyle}>{numberInQueue}</div>
         </Card>
 
         <Card title="Visited" subtitle="Number of visited urls">
-            <div class="p-6 text-center text-2xl">{numberOfVisitedSites}</div>
+            <div class={cardStyle}>{numberOfVisitedSites}</div>
         </Card>
 
         <Card title="Links" subtitle="Number of links found">
-            <div class="p-6 text-center text-2xl">{numberOfLinks}</div>
+            <div class={cardStyle}>{numberOfLinks}</div>
         </Card>
-    {/await}
-</div>
+    </div>
+{/await}
 
 <button onclick={startCrawling} disabled={numberInQueue === 0}>Start crawling</button>
 <button onclick={stopCrawling}>Stop crawling</button>
