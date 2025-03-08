@@ -1,1 +1,56 @@
 @import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+    --background: #ffe8ec;
+    --font-primary: #000000;
+    --font-secondary: #ffffff;
+    --primary: #ff0000;
+    --secondary: #000000;
+    --success: #008844;
+    --warning: #dd8800;
+    --error: #dd2525;
+
+    --light-gray: var(--color-gray-400);
+    --dark-gray: var(--color-gray-800);
+}
+
+.dark {
+    --background: #333745;
+    --font-primary: #dddddd;
+    --font-secondary: #000000;
+    --primary: #ef6f6c;
+    --secondary: #ffffff;
+    --success: #519872;
+    --warning: #e0ca3c;
+    --error: #f05365;
+
+    --light-gray: var(--color-gray-800);
+    --dark-gray: var(--color-gray-400);
+}
+
+/* See https://tailwindcss.com/docs/theme */
+@theme inline {
+    --font-serif: Nunito, ui-serif, Georgia, Cambria, 'Times New Roman', Times, serif;
+
+    --color-main-color: var(--background);
+    --color-font-primary: var(--font-primary);
+    --color-font-secondary: var(--font-secondary);
+    --color-primary: var(--primary);
+    --color-secondary: var(--secondary);
+    --color-success: var(--success);
+    --color-warning: var(--warning);
+    --color-error: var(--error);
+
+    --color-light-gray: var(--light-gray);
+    --color-dark-gray: var(--dark-gray);
+
+    --shadow-button: 0px 0px 2px 2px #ed7b79;
+
+    --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.5), 0 1px 2px -1px rgb(0 0 0 / 0.5);
+}
+
+body {
+    @apply transition-colors duration-150 ease-linear;
+}

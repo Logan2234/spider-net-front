@@ -3,4 +3,5 @@ export interface StatsOverview {
     totalInQueue: number;
     totalLinks: number;
     totalVisited: number;
+    memoryUsage: number;
 }

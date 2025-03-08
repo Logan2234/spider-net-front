@@ -1,7 +1,9 @@
 <script lang="ts">
-    import Card from '$lib/components/card.svelte';
+    import Button from '$lib/components/base/button.svelte';
+    import Card from '$lib/components/base/card.svelte';
     import type { StatsOverview } from '$lib/dtos/statsOverview';
     import { createWebSocket } from '$lib/stores/websocket';
+    import { toHumanReadableMemory } from '$lib/utils/humanReadable';
     import { onMount } from 'svelte';
 
     const cardStyle = 'p-6 text-center text-2xl max-w-xl';
@@ -13,7 +15,8 @@
         totalDomains: 0,
         totalInQueue: 0,
         totalLinks: 0,
-        totalVisited: 0
+        totalVisited: 0,
+        memoryUsage: 0
     });
 
     onMount(() => {
@@ -75,13 +78,18 @@
 
 <input type="url" bind:value={url} placeholder="Enter the URL to scrap" />
 <br />
-<button onclick={addInQueue}>Add URL in queue</button>
+
+<Button onclick={addInQueue} label="Add URL in queue" />
 
 {#if error}
     <p class="text-red-500">{error}</p>
 {/if}
 
 {#if stats}
+    <p>Memory usage:</p>
+    {#each Object.entries(stats.memoryUsage) as memoryEntry}
+        <p>{memoryEntry[0]}: {toHumanReadableMemory(memoryEntry[1])}</p>
+    {/each}
     <div class="flex flex-row gap-4">
         <Card title="Domains" subtitle="Number of known domains">
             <div class={cardStyle}>{stats.totalDomains}</div>
