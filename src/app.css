@@ -49,9 +49,6 @@
     --color-dark-gray: var(--dark-gray);
     --color-black-or-white: var(--black-or-white);
 
-    --shadow-button: 0px 0px 2px 2px #ed7b79;
-    --shadow-button-soft: 1px 1px 2px 0px #ed7b79;
-
     --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.5), 0 1px 2px -1px rgb(0 0 0 / 0.5);
 }
 

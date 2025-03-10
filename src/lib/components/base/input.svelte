@@ -7,6 +7,7 @@
         focused = $bindable(),
         disabled = false,
         required = false,
+        withValidationIndicators = true,
         style = ''
     }: {
         placeholder?: string;
@@ -16,26 +17,59 @@
         focused?: boolean;
         disabled?: boolean;
         required?: boolean;
+        withValidationIndicators?: boolean;
         style?: string;
     } = $props();
 
     const randomId = Math.random().toString(36).slice(2);
+
+    const disabledStyle =
+        'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-dark-gray/15';
+
+    const defaultStyle =
+        'bg-dark-gray/15 placeholder-dark-gray border-dark-gray rounded-md border px-3 py-2 duration-150 w-full';
+
+    const focusStyle =
+        'focus:border-transparent! focus:outline-1 focus:outline-offset-2 focus:outline-dark-gray';
+
+    const validStyle = withValidationIndicators
+        ? 'valid:not-placeholder-shown:outline-success valid:not-placeholder-shown:border-success'
+        : '';
+
+    const invalidStyle = withValidationIndicators
+        ? 'invalid:not-placeholder-shown:outline-error invalid:not-placeholder-shown:border-error'
+        : '';
 </script>
 
-<div class="flex flex-col gap-2 {disabled ? 'opacity-50' : ''}">
+<div class="my-2 flex flex-col {disabled ? 'opacity-50' : ''}">
     {#if label}
-        <label for={randomId} class="block"
-            >{label}
-            <span class="text-sm text-red-500">{required ? '*' : ''}</span></label>
+        <label
+            for={randomId}
+            class="w-fit pb-1 {required
+                ? "after:ml-0.5 after:text-red-500 after:content-['*']"
+                : ''}">
+            {label}
+        </label>
     {/if}
-    <input
-        id={randomId}
-        bind:value
-        {placeholder}
-        {type}
-        {disabled}
-        {required}
-        onfocus={() => (focused = true)}
-        onblur={() => (focused = false)}
-        class="not-focus:hover:border-black-or-white bg-dark-gray/20 placeholder-dark-gray focus:outline-black-or-white rounded-md border border-gray-300 px-3 py-2 duration-150 invalid:border-red-500 focus:border-transparent focus:outline-1 focus:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-gray-300 {style}" />
+
+    <span
+        class={withValidationIndicators
+            ? `
+        has-valid:has-not-placeholder-shown:after:text-success
+        has-invalid:has-not-placeholder-shown:after:text-error
+        after:absolute after:-ml-8 after:px-3 after:py-2
+        has-valid:has-not-placeholder-shown:after:content-['✓']
+        has-invalid:has-not-placeholder-shown:after:content-['✗']`
+            : ''}>
+        <input
+            id={randomId}
+            bind:value
+            {placeholder}
+            {type}
+            {disabled}
+            {required}
+            onfocus={() => (focused = true)}
+            onblur={() => (focused = false)}
+            class="peer {defaultStyle} {disabledStyle} {focusStyle} {invalidStyle} {validStyle} hover:bg-dark-gray/20 {style}" />
+    </span>
 </div>

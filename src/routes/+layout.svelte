@@ -23,9 +23,10 @@
         <Input
             bind:focused={focusedOnUrlInput}
             bind:value
-            type="url"
+            type="text"
+            withValidationIndicators={false}
             placeholder="https://www.example.com"
-            style="focus:translate-y-[20vh] focus:bg-dark-gray/20 focus:scale-150 shadow-lg duration-200 rounded-full! px-6 py-1 text-sm border-0 outline-none focus:ring-0" />
+            style="focus:translate-y-[20vh] focus:scale-150 shadow-lg duration-200 rounded-full! px-6 py-1 text-sm border-0" />
     </form>
 
     <div class="absolute right-4">

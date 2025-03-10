@@ -21,25 +21,27 @@
     } = $props();
 
     const buttonStyles = {
-        primary:
-            'bg-primary text-font-secondary active:shadow-button-soft active:inset-shadow-xs active:inset-shadow-black',
-        secondary:
-            'text-font-primary active:shadow-button-soft active:inset-shadow-xs active:inset-shadow-black',
-        simple: 'bg-transparent text-font-primary hover:bg-transparent hover:translate-0 hover:underline hover:underline-offset-4 p-0! border-none hover:shadow-none shadow-none active:shadow-none focus:outline-none focus:underline focus:underline-offset-4 active:decoration-solid decoration-dashed'
+        primary: 'bg-primary text-font-secondary',
+        secondary: 'text-font-primary',
+        simple: 'bg-transparent text-font-primary hover:bg-transparent hover:translate-0 hover:underline hover:underline-offset-4 p-0! border-none hover:shadow-none shadow-none active:shadow-none focus-visible:outline-none focus-visible:underline focus-visible:underline-offset-4 decoration-dashed'
     };
 
     const commonStyle =
         'cursor-pointer px-4 py-2 border-2 border-primary rounded-2xl duration-100 max-w-48';
-    const hoverStyle = '';
-    const focusStyle = 'focus:outline-2 focus:outline-offset-2 focus:outline-primary';
+
+    const hoverStyle = 'not-disabled:hover:scale-103';
+
+    const focusVisibleStyle =
+        'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary';
+
     const disabledStyle = `disabled:opacity-50 disabled:hover:shadow-none disabled:hover:no-underline ${tooltip ? 'disabled:cursor-not-allowed' : 'disabled:cursor-default'}`;
-    const activeStyle = '';
+    const activeStyle = 'not-disabled:active:scale-97';
 </script>
 
 <Tooltip message={tooltip} target={buttonRef} />
 <button
     bind:this={buttonRef}
-    class={`${buttonStyles[color]} ${commonStyle} ${hoverStyle} ${focusStyle} ${disabledStyle} ${activeStyle}`}
+    class={`${commonStyle} ${hoverStyle} ${focusVisibleStyle} ${disabledStyle} ${activeStyle} ${buttonStyles[color]}`}
     {onclick}
     {type}
     {disabled}>

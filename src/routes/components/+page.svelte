@@ -65,8 +65,13 @@
 
     <div class={divClass + ' flex-col'}>
         <h1 class={title}>Input</h1>
-        <Input label="Label" placeholder="Placeholder..." required />
-        <Input label="Label" placeholder="Placeholder..." disabled />
+        <form>
+            <Input label="Label" placeholder="Placeholder..." required />
+            <Input label="Label" placeholder="Placeholder..." />
+            <Input label="URL" placeholder="https://google.com" type="url" required />
+            <Input label="Label" placeholder="Placeholder..." disabled />
+            <button type="submit">dazd</button>
+        </form>
     </div>
 
     <Modal bind:open={modalOpen}>
