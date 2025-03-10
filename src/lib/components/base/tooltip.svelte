@@ -1,20 +1,33 @@
 <script lang="ts">
     import { scale } from 'svelte/transition';
 
-    let { message = '', target }: { message: string; target?: HTMLElement } = $props();
+    let {
+        message = '',
+        target,
+        x = 0,
+        y = 0
+    }: { message: string; target?: HTMLElement; x?: number; y?: number } = $props();
+
+    let showTooltip = $state(false);
     let tooltip: HTMLDivElement | undefined = $state();
 
-    if (target) {
-        $effect(() => {
-            if (tooltip) {
-                tooltip.style.left = `${target.offsetLeft - tooltip.offsetWidth - 10}px`;
-                tooltip.style.top = `${target.offsetTop - tooltip.offsetHeight + target.offsetTop / 4}px`;
-            }
-        });
-    }
+    $effect(() => {
+        target?.addEventListener('mouseenter', () => (showTooltip = true));
+        target?.addEventListener('mouseleave', () => (showTooltip = false));
+
+        if (tooltip && target) {
+            tooltip.style.left = `${target.offsetLeft - tooltip.offsetWidth - 10 + x}px`;
+            tooltip.style.top = `${target.offsetTop - tooltip.offsetHeight + target.offsetTop / 8 + y}px`;
+        }
+
+        return () => {
+            target?.removeEventListener('mouseenter', () => (showTooltip = true));
+            target?.removeEventListener('mouseleave', () => (showTooltip = false));
+        };
+    });
 </script>
 
-{#if message}
+{#if message && showTooltip}
     <div
         transition:scale|global={{ delay: 25, duration: 100, opacity: 0.5, start: 0.95 }}
         bind:this={tooltip}
