@@ -1,6 +1,5 @@
 <script lang="ts">
-    let firstLoad = $state(true);
-    let show = $state(false);
+    import { allowScroll, blockScroll } from '$lib/utils/htmlDocumentHelper';
 
     let {
         header = null,
@@ -18,12 +17,16 @@
         onClose?: (...args: any) => any;
     } = $props();
 
+    let modal: HTMLDialogElement | undefined = $state();
+    let show = $state(false);
+
     const onCloseHandler = () => {
-        console.log('ON CLOSE');
-        onClose?.();
-        document.documentElement.classList.remove('overflow-hidden');
-        document.documentElement.classList.remove('mr-[15px]');
         show = false;
+        setTimeout(() => {
+            modal?.close();
+            allowScroll();
+            onClose?.();
+        }, 150);
     };
 
     const onKeyPressHandler = (e: KeyboardEvent) => {
@@ -33,20 +36,19 @@
         }
     };
 
+    const onOpen = () => {
+        blockScroll();
+        modal?.showModal();
+        setTimeout(() => (show = true), 10);
+    };
+
     $effect(() => {
         if (open) {
-            modal?.showModal();
-            show = true;
-            document.documentElement.classList.add('overflow-hidden');
-            document.documentElement.classList.add('mr-[15px]');
+            onOpen();
         } else if (show) {
-            setTimeout(() => {
-                modal?.close();
-            }, 150);
+            onCloseHandler();
         }
     });
-
-    let modal: HTMLDialogElement | undefined = $state();
 </script>
 
 <dialog
@@ -55,7 +57,7 @@
     onkeydown={onKeyPressHandler}
     class="{show && open
         ? 'translate-y-0 opacity-100'
-        : 'translate-y-[10vh] opacity-0'} bg-main-color text-font-primary scale-0 flex-col gap-8 self-center justify-self-center rounded-xl p-8 duration-150 backdrop:backdrop-blur-xs backdrop:backdrop-brightness-50 open:flex open:scale-100 2xl:max-w-1/2">
+        : 'translate-y-[10vh] opacity-0'} bg-main-color text-font-primary flex-col gap-8 self-center justify-self-center rounded-xl p-8 duration-150 backdrop:backdrop-blur-xs backdrop:backdrop-brightness-50 open:flex 2xl:max-w-1/2">
     {#if showCloseButton}
         <button
             type="button"
