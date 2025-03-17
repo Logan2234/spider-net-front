@@ -1,8 +1,8 @@
 <script lang="ts">
-    let { value = $bindable() }: { value: boolean } = $props();
+    let { value = $bindable(), class: style = '' }: { value: boolean; class?: string } = $props();
 </script>
 
-<label class="relative cursor-pointer">
+<label class="relative cursor-pointer {style}">
     <!-- Hidden Checkbox -->
     <input type="checkbox" bind:checked={value} class="peer sr-only" />
 

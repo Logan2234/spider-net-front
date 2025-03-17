@@ -8,7 +8,8 @@
         disabled = false,
         required = false,
         withValidationIndicators = true,
-        style = ''
+        class: style = '',
+        onkeydown
     }: {
         placeholder?: string;
         type?: string;
@@ -18,7 +19,8 @@
         disabled?: boolean;
         required?: boolean;
         withValidationIndicators?: boolean;
-        style?: string;
+        class?: string;
+        onkeydown?: (e: KeyboardEvent) => any;
     } = $props();
 
     const randomId = Math.random().toString(36).slice(2);
@@ -62,6 +64,7 @@
         has-invalid:has-not-placeholder-shown:after:content-['✗']`
             : ''}>
         <input
+            {onkeydown}
             id={randomId}
             bind:value
             {placeholder}
