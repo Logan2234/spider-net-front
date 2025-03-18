@@ -9,6 +9,7 @@
         required = false,
         withValidationIndicators = true,
         class: style = '',
+        containerClass = '',
         onkeydown
     }: {
         placeholder?: string;
@@ -20,6 +21,7 @@
         required?: boolean;
         withValidationIndicators?: boolean;
         class?: string;
+        containerClass?: string;
         onkeydown?: (e: KeyboardEvent) => any;
     } = $props();
 
@@ -43,7 +45,7 @@
         : '';
 </script>
 
-<div class="my-2 flex flex-col {disabled ? 'opacity-50' : ''}">
+<div class="my-2 flex flex-col {disabled ? 'opacity-50' : ''} {containerClass}">
     {#if label}
         <label
             for={randomId}

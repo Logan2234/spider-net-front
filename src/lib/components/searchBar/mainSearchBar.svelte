@@ -1,13 +1,15 @@
 <script lang="ts">
     import { allowScroll, blockScroll } from '$lib/utils/htmlDocumentHelper';
     import { fade } from 'svelte/transition';
-    import Input from './base/input.svelte';
+    import Input from '../base/input.svelte';
+    import SearchResultBlock from './searchResultBlock.svelte';
 
     let focusedOnUrlInput = $state(false);
-    let focusedOnUrlSearch = $state(true);
-    let value = $state('a');
-    let lastTimeInputModified = $state(0);
-    let searchPromise: Promise<any[]> | null = $state(null);
+    let focusedOnUrlSearch = $state(false);
+    let value = $state('');
+    let oldResponse = $state([]);
+    let searchPromise: Promise<any[]> = $state(null!);
+    let loading = $state(false);
 
     $effect(() => {
         if (focusedOnUrlInput && !focusedOnUrlSearch) {
@@ -21,14 +23,25 @@
 
     $effect(() => {
         value = value.trimStart();
-        if (!value || Date.now() - lastTimeInputModified < 250) {
+
+        if (!value) {
+            oldResponse = [];
             return;
         }
 
-        lastTimeInputModified = Date.now();
+        loading = true;
+
         searchPromise = fetch('https://localhost:4000/api/v1/search?searchTerm=' + value, {
             method: 'GET'
-        }).then((response) => response.json());
+        })
+            .then((response) => response.json())
+            .then((response) => {
+                oldResponse = response;
+                return response || [];
+            })
+            .finally(() => {
+                loading = false;
+            });
     });
 
     const onInputKeyDown = (e: KeyboardEvent) => {
@@ -50,37 +63,22 @@
         type="text"
         withValidationIndicators={false}
         placeholder="https://www.example.com"
+        containerClass={`${
+            loading
+                ? 'after:opacity-60 after:delay-1000 after:animate-[spin_1.5s_linear_infinite_1s] after:fade-in'
+                : 'after:opacity-0'
+        } after:w-6 after:h-6 after:absolute after:border-r-transparent after:border-3 after:rounded-full after:right-2 after:top-4`}
         class="rounded-full! border-0 px-6 py-1 shadow-lg" />
-    <div class="absolute w-full">
+
+    {#if value}
         {#await searchPromise}
-            <div
-                class="h-12 w-12 animate-spin rounded-full border-4 border-solid border-white border-t-transparent">
-            </div>
+            <SearchResultBlock {loading} results={oldResponse} />
         {:then response}
-            {#if response && value}
-                <div class="overflow-auto rounded-2xl bg-gray-500/20">
-                    {#each response as website}
-                        <div class="flex justify-between">
-                            <a
-                                href={`https://localhost:5173/search?domain=${website.name}`}
-                                class="flex-1 py-2 pl-10 duration-150 hover:bg-gray-600/20">
-                                {website.name}
-                            </a>
-                            <a
-                                aria-label="Open website in new tab"
-                                href={`https://${website.name}`}
-                                target="_blank"
-                                class="p-2 duration-150 hover:bg-gray-600/20">
-                                <i class="fa-solid fa-arrow-up-right-from-square opacity-40"></i>
-                            </a>
-                        </div>
-                    {/each}
-                </div>
-            {/if}
+            <SearchResultBlock results={response} />
         {:catch error}
-            <p class="text-white">Error: {error}</p>
+            <SearchResultBlock {error} />
         {/await}
-    </div>
+    {/if}
 </div>
 
 {#if focusedOnUrlSearch}

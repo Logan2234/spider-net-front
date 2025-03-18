@@ -1,6 +1,6 @@
 <script lang="ts">
     import DarkModeSwitch from '$lib/components/darkModeSwitch.svelte';
-    import MainSearchBar from '$lib/components/mainSearchBar.svelte';
+    import MainSearchBar from '$lib/components/searchBar/mainSearchBar.svelte';
     import '../app.css';
 
     let { children, data } = $props();
