@@ -10,4 +10,4 @@
     });
 </script>
 
-<Switch bind:value={darkModeOn} />
+<Switch class="absolute! right-8" bind:value={darkModeOn} />
