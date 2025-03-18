@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { InputType } from "$lib/types/inputType";
+    import type { InputType } from '$lib/types/inputType';
 
     let {
         placeholder = '',
@@ -27,13 +27,19 @@
         onkeydown?: (e: KeyboardEvent) => any;
     } = $props();
 
+    $effect(() => {
+        if (focused) {
+            document.getElementById(randomId)?.focus();
+        }
+    })
+
     const randomId = Math.random().toString(36).slice(2);
 
     const disabledStyle =
         'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-dark-gray/15';
 
     const defaultStyle =
-        'bg-dark-gray/15 placeholder-dark-gray border-dark-gray rounded-md border px-3 py-2 duration-150 w-full';
+        'bg-dark-gray/15 placeholder-dark-gray border-dark-gray rounded-md border px-3 py-2 duration-150';
 
     const focusStyle =
         'focus:border-transparent! focus:outline-1 focus:outline-offset-2 focus:outline-dark-gray';

@@ -1,6 +1,7 @@
 <script lang="ts">
     import Button from '$lib/components/base/button.svelte';
     import Card from '$lib/components/base/card.svelte';
+    import Input from '$lib/components/base/input.svelte';
     import type { StatsOverview } from '$lib/dtos/statsOverview';
     import { createWebSocket } from '$lib/stores/websocket';
     import { toHumanReadableMemory } from '$lib/utils/humanReadable';
@@ -54,9 +55,6 @@
         if (!data.ok) {
             const json = await data.json();
             error = json.message;
-        } else {
-            const json = await data.json();
-            alert('Action successful: ' + json.success);
         }
     };
 
@@ -69,27 +67,20 @@
         if (!data.ok) {
             const json = await data.json();
             error = json.message;
-        } else {
-            const json = await data.json();
-            alert('Action successful: ' + json.success);
         }
     };
 </script>
 
-<input type="url" bind:value={url} placeholder="Enter the URL to scrap" />
-<br />
-
-<Button onclick={addInQueue} label="Add URL in queue" />
+<div class="flex flex-row gap-4">
+    <Input type="url" bind:value={url} class="w-[20rem]" placeholder="Enter the URL to scrap" />
+    <Button onclick={addInQueue} color="simple" label="Add URL in queue" />
+</div>
 
 {#if error}
     <p class="text-red-500">{error}</p>
 {/if}
 
 {#if stats}
-    <p>Memory usage:</p>
-    {#each Object.entries(stats.memoryUsage) as memoryEntry}
-        <p>{memoryEntry[0]}: {toHumanReadableMemory(memoryEntry[1])}</p>
-    {/each}
     <div class="flex flex-row gap-4">
         <Card title="Domains" subtitle="Number of known domains">
             <div class={cardStyle}>{stats.totalDomains}</div>
@@ -106,10 +97,23 @@
         <Card title="Links" subtitle="Number of links found">
             <div class={cardStyle}>{stats.totalLinks}</div>
         </Card>
+        <div class="flex flex-col justify-center gap-4 px-8">
+            <Button
+                label="Start crawling"
+                onclick={startCrawling}
+                type="button"
+                color="simple"
+                disabled={stats.totalInQueue === 0} />
+            <Button label="Stop crawling" onclick={stopCrawling} type="reset" color="simple" />
+        </div>
     </div>
-
-    <button onclick={startCrawling} disabled={stats.totalInQueue === 0}>Start crawling</button>
-    <button onclick={stopCrawling}>Stop crawling</button>
 {:else}
     <p>Loading...</p>
 {/if}
+
+<hr class="mt-4 w-3/4 border-gray-400/20" />
+
+<h1 class="text-2xl font-bold">Memory usage</h1>
+{#each Object.entries(stats.memoryUsage) as memoryEntry}
+    <p>{memoryEntry[0]}: {toHumanReadableMemory(memoryEntry[1])}</p>
+{/each}

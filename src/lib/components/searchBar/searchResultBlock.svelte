@@ -6,19 +6,19 @@
     }: { results?: { name: string }[]; loading?: boolean; error?: any } = $props();
 </script>
 
-<div class="absolute w-full overflow-auto rounded-2xl bg-gray-500/20">
+<div class="absolute w-full overflow-auto rounded-2xl bg-gray-500/30">
     {#each results as website}
         <div class="flex justify-between">
             <a
                 href={`https://localhost:5173/search?domain=${website.name}`}
-                class="min-w-0 flex-1 py-2 pl-10 break-words duration-150 hover:bg-gray-600/20">
+                class="min-w-0 flex-1 py-2 pl-10 break-words duration-150 hover:bg-gray-600/30">
                 {website.name}
             </a>
             <a
                 aria-label="Open website in new tab"
                 href={`https://${website.name}`}
                 target="_blank"
-                class="p-2 duration-150 hover:bg-gray-600/20">
+                class="p-2 duration-150 hover:bg-gray-600/30">
                 <i class="fa-solid fa-arrow-up-right-from-square opacity-40"></i>
             </a>
         </div>

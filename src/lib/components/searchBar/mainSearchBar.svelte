@@ -3,6 +3,7 @@
     import { fade } from 'svelte/transition';
     import Input from '../base/input.svelte';
     import SearchResultBlock from './searchResultBlock.svelte';
+    import { preventDefault } from 'svelte/legacy';
 
     let focusedOnUrlInput = $state(false);
     let focusedOnUrlSearch = $state(false);
@@ -44,22 +45,28 @@
             });
     });
 
-    const onInputKeyDown = (e: KeyboardEvent) => {
+    const onWindowKeyDown = (e: KeyboardEvent) => {
         if (e.key === 'Escape') {
             focusedOnUrlSearch = false;
             (document.activeElement as HTMLInputElement)?.blur();
         }
+
+        if (e.ctrlKey && e.key === 'k') {
+            focusedOnUrlInput = true;
+            e.preventDefault();
+        }
     };
 </script>
 
+<svelte:window onkeydown={onWindowKeyDown} />
+
 <div
-    class="z-1 max-w-1/2 flex-1 duration-200 {focusedOnUrlSearch
+    class="z-1 max-w-2/5 flex-1 duration-200 {focusedOnUrlSearch
         ? 'translate-y-[5vh] scale-150'
         : ''}">
     <Input
         bind:focused={focusedOnUrlInput}
         bind:value
-        onkeydown={onInputKeyDown}
         type="text"
         withValidationIndicators={false}
         placeholder="https://www.example.com"
@@ -68,7 +75,7 @@
                 ? 'after:opacity-60 after:delay-1000 after:animate-[spin_1.5s_linear_infinite_1s] after:fade-in'
                 : 'after:opacity-0'
         } after:w-6 after:h-6 after:absolute after:border-r-transparent after:border-3 after:rounded-full after:right-2 after:top-4`}
-        class="rounded-full! border-0 px-6 py-1 shadow-lg" />
+        class="w-full rounded-full! border-0 px-6 py-1 shadow-lg" />
 
     {#if value}
         {#await searchPromise}
@@ -86,10 +93,8 @@
     <div
         role="dialog"
         tabindex="-1"
-        onclick={() => {
-            focusedOnUrlSearch = false;
-        }}
+        onclick={() => (focusedOnUrlSearch = false)}
         transition:fade={{ duration: 150 }}
-        class="fixed top-0 left-0 flex h-full w-full items-center justify-center bg-black/20 backdrop-blur-sm">
+        class="fixed top-0 left-0 flex h-full w-full items-center justify-center bg-black/30 backdrop-blur-sm">
     </div>
 {/if}
