@@ -5,23 +5,26 @@
     import Switch from '$lib/components/base/switch.svelte';
     import Tooltip from '$lib/components/base/tooltip.svelte';
 
-    const divClass = 'p-6 flex min-h-24 items-center justify-center gap-4 flex-wrap';
+    const divClass = 'p-6 min-h-24 justify-items-center';
 
-    const title = 'text-3xl font-bold px-4 text-center';
+    const title = 'text-3xl font-bold p-4 text-center';
+    const subtitle = 'text-2xl font-bold p-4 text-center';
 
     let switchValue = $state(false);
     let target: HTMLElement | undefined = $state();
     let modalOpen = $state(false);
 </script>
 
-<div class="flex flex-col items-center justify-center gap-8 p-2">
-    <div class={divClass + ' flex-col'}>
+<div class="flex flex-col items-center justify-center p-2">
+    <div class={divClass}>
         <h1 class={title}>Switch</h1>
         <Switch bind:value={switchValue} />
         <div>Value: {switchValue}</div>
     </div>
 
-    <div class={divClass + ' flex-col'}>
+    <hr class="mt-4 w-3/4 border-gray-400/20" />
+
+    <div class={divClass}>
         <h1 class={title}>Tooltip</h1>
         <Tooltip
             {target}
@@ -38,7 +41,9 @@
         </div>
     </div>
 
-    <div class={divClass + ' flex-row'}>
+    <hr class="mt-4 w-3/4 border-gray-400/20" />
+
+    <div class={divClass}>
         <h1 class={title}>Bouton</h1>
         <Button label="Button primaire" color="primary" type="button" />
         <Button label="Button secondaire" color="secondary" type="button" />
@@ -54,7 +59,9 @@
             tooltip="Le bouton est désactivé pour des raisons de test" />
     </div>
 
-    <div class={divClass + ' flex-col'}>
+    <hr class="mt-4 w-3/4 border-gray-400/20" />
+
+    <div class={divClass}>
         <h1 class={title}>Modal</h1>
         <Button
             label="Ouvrir la modal"
@@ -63,15 +70,38 @@
             onclick={() => (modalOpen = true)} />
     </div>
 
-    <div class={divClass + ' flex-col'}>
+    <hr class="mt-4 w-3/4 border-gray-400/20" />
+
+    <div class={divClass}>
         <h1 class={title}>Input</h1>
-        <form>
-            <Input label="Label" placeholder="Placeholder..." required />
-            <Input label="Label" placeholder="Placeholder..." />
-            <Input label="URL" placeholder="https://google.com" type="url" required />
-            <Input label="Label" placeholder="Placeholder..." disabled />
-            <button type="submit">dazd</button>
-        </form>
+        <div class="flex flex-col items-center">
+            <div>
+                <h2 class={subtitle}>Variants</h2>
+                <div class="flex flex-row flex-wrap gap-4">
+                    <Input label="Normal" />
+                    <Input label="Required" required />
+                    <Input label="Disabled" disabled />
+                    <Input label="With placeholder" placeholder="Placeholder..."  />
+                    <Input label="With no validation" withValidationIndicators={false} value="test" />
+                </div>
+            </div>
+            <div>
+                <h2 class={subtitle}>Types</h2>
+                <div class="flex flex-row flex-wrap gap-4 align-center">
+                    <Input label="Number" placeholder="849" type="number" />
+                    <Input label="URL" placeholder="https://google.com" type="url" />
+                    <Input label="Email" placeholder="this+is@email.com" type="email" />
+                    <Input label="Password" placeholder="P@ssw0rd!" type="password" />
+                    <Input label="Range" type="range" />
+                    <Input label="Search" placeholder="Placeholder..." type="search" />
+                    <Input label="Date" type="date" />
+                    <Input label="Datetime Local" type="datetime-local" />
+                    <Input label="Time" type="time" />
+                    <Input label="Week" type="week" />
+                    <Input label="File" type="file" />
+                </div>
+            </div>
+        </div>
     </div>
 
     <Modal bind:open={modalOpen}>

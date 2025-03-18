@@ -1,4 +1,6 @@
 <script lang="ts">
+    import type { InputType } from "$lib/types/inputType";
+
     let {
         placeholder = '',
         type = 'text',
@@ -13,7 +15,7 @@
         onkeydown
     }: {
         placeholder?: string;
-        type?: string;
+        type?: InputType;
         label?: string;
         value?: string;
         focused?: boolean;
@@ -61,7 +63,8 @@
             ? `
         has-valid:has-not-placeholder-shown:after:text-success
         has-invalid:has-not-placeholder-shown:after:text-error
-        after:absolute after:-ml-8 after:px-3 after:py-2
+        after:absolute after:-z-1 after:-ml-8 after:px-3
+        after:py-2
         has-valid:has-not-placeholder-shown:after:content-['✓']
         has-invalid:has-not-placeholder-shown:after:content-['✗']`
             : ''}>

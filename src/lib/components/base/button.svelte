@@ -23,7 +23,7 @@
     const buttonStyles = {
         primary: 'bg-primary text-font-secondary',
         secondary: 'text-font-primary',
-        simple: 'bg-transparent text-font-primary hover:bg-transparent hover:translate-0 hover:underline hover:underline-offset-4 p-0! border-none hover:shadow-none shadow-none active:shadow-none focus-visible:outline-none focus-visible:underline focus-visible:underline-offset-4 decoration-dashed'
+        simple: 'bg-transparent text-font-primary hover:bg-transparent hover:translate-0 hover:underline hover:underline-offset-4 p-0! border-none hover:shadow-none shadow-none active:shadow-none focus-visible:outline-none focus-visible:underline focus-visible:underline-offset-4'
     };
 
     const commonStyle =
