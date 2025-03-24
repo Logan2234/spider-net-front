@@ -6,7 +6,7 @@
     let { children, data } = $props();
 </script>
 
-<header class="bg-main-color sticky top-0 z-1 flex items-center justify-center py-2">
+<header class="sticky top-0 right-0 z-1 flex items-center justify-center py-2">
     <MainSearchBar />
     <DarkModeSwitch darkModeOn={data.darkModeOn} />
 </header>

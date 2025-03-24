@@ -27,13 +27,13 @@
         onkeydown?: (e: KeyboardEvent) => any;
     } = $props();
 
+    const uid = $props.id();
+
     $effect(() => {
         if (focused) {
-            document.getElementById(randomId)?.focus();
+            document.getElementById(uid)?.focus();
         }
     })
-
-    const randomId = Math.random().toString(36).slice(2);
 
     const disabledStyle =
         'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-dark-gray/15';
@@ -56,7 +56,7 @@
 <div class="my-2 flex flex-col {disabled ? 'opacity-50' : ''} {containerClass}">
     {#if label}
         <label
-            for={randomId}
+            for={uid}
             class="w-fit pb-1 {required
                 ? "after:ml-0.5 after:text-red-500 after:content-['*']"
                 : ''}">
@@ -76,7 +76,7 @@
             : ''}>
         <input
             {onkeydown}
-            id={randomId}
+            id={uid}
             bind:value
             {placeholder}
             {type}

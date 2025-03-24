@@ -10,7 +10,7 @@
     {#each results as website}
         <div class="flex justify-between">
             <a
-                href={`https://localhost:5173/search?domain=${website.name}`}
+                href={`/graph?domain=${website.name}`}
                 class="min-w-0 flex-1 py-2 pl-10 break-words duration-150 hover:bg-gray-600/30">
                 {website.name}
             </a>

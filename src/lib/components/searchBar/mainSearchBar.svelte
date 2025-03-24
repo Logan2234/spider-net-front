@@ -1,9 +1,10 @@
 <script lang="ts">
+    import { beforeNavigate } from '$app/navigation';
     import { allowScroll, blockScroll } from '$lib/utils/htmlDocumentHelper';
+    import { onMount } from 'svelte';
     import { fade } from 'svelte/transition';
     import Input from '../base/input.svelte';
     import SearchResultBlock from './searchResultBlock.svelte';
-    import { preventDefault } from 'svelte/legacy';
 
     let focusedOnUrlInput = $state(false);
     let focusedOnUrlSearch = $state(false);
@@ -11,6 +12,12 @@
     let oldResponse = $state([]);
     let searchPromise: Promise<any[]> = $state(null!);
     let loading = $state(false);
+
+    onMount(() => {
+        beforeNavigate(() => {
+            focusedOnUrlSearch = false;
+        });
+    });
 
     $effect(() => {
         if (focusedOnUrlInput && !focusedOnUrlSearch) {
