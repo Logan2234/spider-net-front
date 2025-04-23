@@ -96,8 +96,12 @@ export class Graph implements DrawableElement {
 
     moveNodes(): void {
         this.nodes.forEach((node) => {
-            this.moveFromCenterNode(node);
-            this.moveFromOtherNodes(node);
+            const accelerationFromCenter = this.moveFromCenterNode(node);
+            const accelerationFromOtherNodes = this.moveFromOtherNodes(node);
+            node.acceleration = Vector2D.add(
+                accelerationFromCenter.multiply(1),
+                accelerationFromOtherNodes.multiply(1.5)
+            );
             node.move();
         });
     }
