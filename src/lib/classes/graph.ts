@@ -34,6 +34,10 @@ export class Graph implements DrawableElement {
                 }) || null;
 
             if (hoveredNode) {
+                if (this.hoveredNode) {
+                    this.hoveredNode.fill = false;
+                }
+
                 this.hoveredNode = hoveredNode;
                 this.hoveredNode.fill = true;
             } else if (this.hoveredNode) {

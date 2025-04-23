@@ -61,8 +61,8 @@
             }
         );
 
-        data.stats?.links.forEach((link) => {
-            graph.addNode(link.weight, 'black', link.from, false);
+        data.stats?.links.forEach((link, index) => {
+            setTimeout(() => graph.addNode(link.weight, 'black', link.from, false), index * 10);
         });
 
         return setInterval(() => {
