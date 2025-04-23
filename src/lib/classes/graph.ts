@@ -1,12 +1,12 @@
 import { GRAPH_AMORTIZATION_FACTOR, GRAPH_K_CONSTANT, GRAPH_SAFE_ZONE } from '$lib/constants/graph';
-import { Point2D, type DrawableElement } from '$lib/types/drawableElement';
+import { Vector2D, type DrawableElement } from '$lib/types/drawableElement';
 import { Link } from './link';
 import { Node } from './node';
 
 export class Graph implements DrawableElement {
     private hoveredNode: Node | null = null;
-    private lastMousePos: Point2D | null = null;
-    private clickedPos: Point2D | null = null;
+    private lastMousePos: Vector2D | null = null;
+    private clickedPos: Vector2D | null = null;
     private nodes: Node[] = [];
     private links: Link[] = [];
 
@@ -18,7 +18,7 @@ export class Graph implements DrawableElement {
     ) {
         this.ctx.canvas.onmousemove = (e: MouseEvent) => {
             if (this.clickedPos && this.lastMousePos) {
-                const delta = new Point2D(
+                const delta = new Vector2D(
                     e.offsetX - this.lastMousePos.x,
                     e.offsetY - this.lastMousePos.y
                 );
@@ -26,7 +26,7 @@ export class Graph implements DrawableElement {
                 this.translate(delta.x, delta.y);
             }
 
-            this.lastMousePos = new Point2D(e.offsetX, e.offsetY);
+            this.lastMousePos = new Vector2D(e.offsetX, e.offsetY);
 
             const hoveredNode =
                 this.nodes.find((node) => {
@@ -50,7 +50,7 @@ export class Graph implements DrawableElement {
 
         this.ctx.canvas.onmousedown = (e: MouseEvent) => {
             if (e.button === 0) {
-                this.clickedPos = new Point2D(e.offsetX, e.offsetY);
+                this.clickedPos = new Vector2D(e.offsetX, e.offsetY);
             }
         };
 
@@ -82,7 +82,8 @@ export class Graph implements DrawableElement {
         const x = this.randomPosition(this.ctx.canvas.width);
         const y = this.randomPosition(this.ctx.canvas.height);
 
-        const coord = new Point2D(x, y);
+        const coord = new Vector2D(x, y);
+
         const newNode = new Node(coord, weight, color || this.randomColor(), fill, label);
         this.nodes.push(newNode);
 
@@ -121,16 +122,19 @@ export class Graph implements DrawableElement {
         const delta = distance - repos;
         const force = -GRAPH_K_CONSTANT * delta;
 
-        const direction = new Point2D(
+        const direction = new Vector2D(
             (node.coord.x - this.mainNode.coord.x) / distance,
             (node.coord.y - this.mainNode.coord.y) / distance
         );
 
-        node.acceleration.x = direction.x * force - GRAPH_AMORTIZATION_FACTOR * node.velocity.x;
-        node.acceleration.y = direction.y * force - GRAPH_AMORTIZATION_FACTOR * node.velocity.y;
+        return new Vector2D(
+            direction.x * force - GRAPH_AMORTIZATION_FACTOR * node.velocity.x,
+            direction.y * force - GRAPH_AMORTIZATION_FACTOR * node.velocity.y
+        );
     }
 
     private moveFromOtherNodes(node: Node) {
+        const acceleration: Vector2D = new Vector2D(0, 0);
         this.nodes.forEach((otherNode) => {
             const distance = node.coord.getDistance(otherNode.coord);
             const delta = node.radius + otherNode.radius - distance + GRAPH_SAFE_ZONE / 4;
@@ -139,14 +143,15 @@ export class Graph implements DrawableElement {
                 return;
             }
 
-            const direction = new Point2D(
+            const direction = new Vector2D(
                 (node.coord.x - otherNode.coord.x) / distance,
                 (node.coord.y - otherNode.coord.y) / distance
             );
 
-            node.acceleration.x += direction.x * 0.1 * delta;
-            node.acceleration.y += direction.y * 0.1 * delta;
+            acceleration.add(new Vector2D(direction.x * 0.1 * delta, direction.y * 0.1 * delta));
         });
+
+        return acceleration;
     }
 
     private translate(x: number, y: number): void {
