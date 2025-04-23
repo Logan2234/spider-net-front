@@ -6,7 +6,7 @@
     import Modal from '$lib/components/base/modal.svelte';
     import Tooltip from '$lib/components/base/tooltip.svelte';
     import { GRAPH_RENDER_INTERVAL } from '$lib/constants/graph';
-    import { Point2D } from '$lib/types/drawableElement';
+    import { Vector2D } from '$lib/types/drawableElement';
     import { onMount } from 'svelte';
     import { innerHeight, innerWidth } from 'svelte/reactivity/window';
     import type { PageProps } from './$types';
@@ -42,7 +42,7 @@
 
     function loadGraph(domain: string) {
         const mainNode = new Node(
-            new Point2D(pageWidth / 2, pageHeight / 2),
+            new Vector2D(pageWidth / 2, pageHeight / 2),
             10 + 0.1 * (data.stats?.visited || 0),
             'black',
             true,
