@@ -71,10 +71,15 @@
     };
 </script>
 
-<div class="flex flex-row gap-4">
-    <Input type="url" bind:value={url} class="w-[20rem]" placeholder="Enter the URL to scrap" />
-    <Button onclick={addInQueue} color="simple" label="Add URL in queue" />
-</div>
+<form class="flex flex-row gap-4" onsubmit={addInQueue}>
+    <Input
+        type="url"
+        bind:value={url}
+        class="w-[20rem]"
+        placeholder="Enter the URL to scrap"
+        required={true} />
+    <Button type="submit" color="simple" label="Add URL in queue" />
+</form>
 
 {#if error}
     <p class="text-red-500">{error}</p>

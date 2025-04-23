@@ -3,6 +3,8 @@
     import { page } from '$app/state';
     import { Graph } from '$lib/classes/graph';
     import { Node } from '$lib/classes/node';
+    import Modal from '$lib/components/base/modal.svelte';
+    import Tooltip from '$lib/components/base/tooltip.svelte';
     import { GRAPH_RENDER_INTERVAL } from '$lib/constants/graph';
     import { Point2D } from '$lib/types/drawableElement';
     import { onMount } from 'svelte';
@@ -11,67 +13,79 @@
 
     const { data }: PageProps = $props();
 
+    let showTooltip = $state('');
+    let clickedNode: Node | null = $state(null);
+
     const pageWidth = $derived(innerWidth.current || 0);
     const pageHeight = $derived(innerHeight.current || 0);
 
-    let clickedPos: Point2D | null = $state(null);
+    let stopInterval: NodeJS.Timeout | undefined;
 
+    let ctx: CanvasRenderingContext2D;
     onMount(() => {
-        const domain = page.url.searchParams.get('domain');
-
-        if (!domain) goto('/');
-
         const canvas = document.getElementById('graph') as HTMLCanvasElement;
+        ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
 
-        if (canvas) {
-            const center = new Point2D(pageWidth / 2, pageHeight / 2);
-            const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
-
-            const mainNode = new Node(
-                center,
-                10 + 0.1 * data.stats!.visited,
-                'black',
-                true,
-                domain!
-            );
-            const graph = new Graph(ctx, mainNode);
-
-            data.stats?.links.forEach((link) => {
-                graph.addNode(link.weight, 'black', link.from, false);
-            });
-
-            setInterval(() => {
-                graph.moveNodes();
-                graph.draw();
-            }, GRAPH_RENDER_INTERVAL);
-
-            canvas.onmousedown = (e: MouseEvent) => {
-                clickedPos = new Point2D(e.offsetX, e.offsetY);
-                console.log(clickedPos);
-
-                canvas.onmousemove = (e: MouseEvent) => {
-                    const delta = new Point2D(e.offsetX - clickedPos!.x, e.offsetY - clickedPos!.y);
-                    clickedPos = new Point2D(e.offsetX, e.offsetY);
-                    console.log(delta);
-                    graph.translate(delta.x, delta.y);
-                };
-            };
-
-            canvas.onmouseup = () => {
-                clickedPos = null;
-
-                canvas.onmousemove = null;
-            };
-        }
+        canvas.oncontextmenu = (e) => e.preventDefault();
     });
+
+    $effect(() => {
+        const domain = page.url.searchParams.get('domain');
+        if (!domain) {
+            goto('/');
+            return;
+        }
+
+        clearInterval(stopInterval);
+        stopInterval = loadGraph(domain);
+    });
+
+    function loadGraph(domain: string) {
+        const mainNode = new Node(
+            new Point2D(pageWidth / 2, pageHeight / 2),
+            10 + 0.1 * (data.stats?.visited || 0),
+            'black',
+            true,
+            domain
+        );
+
+        const graph = new Graph(
+            ctx,
+            mainNode,
+            (_: MouseEvent, hoveredNode: Node | null) => {
+                showTooltip = hoveredNode?.label || '';
+                ctx.canvas.style.cursor = hoveredNode ? 'pointer' : 'default';
+            },
+            (node: Node) => {
+                clickedNode = node;
+            }
+        );
+
+        data.stats?.links.forEach((link) => {
+            graph.addNode(link.weight, 'black', link.from, false);
+        });
+
+        return setInterval(() => {
+            graph.moveNodes();
+            graph.draw();
+        }, GRAPH_RENDER_INTERVAL);
+    }
 </script>
 
 <svelte:head>
     <title>Graph</title>
 </svelte:head>
 
-<canvas id="graph" class="absolute top-0 bg-gray-800" width={pageWidth} height={pageHeight}
-></canvas>
+<canvas id="graph" class="absolute top-0" width={pageWidth} height={pageHeight}> </canvas>
+
+<Tooltip message={showTooltip} class="bottom-8 left-1/2 -translate-x-1/2" />
+
+<Modal open={!!clickedNode} onClose={() => (clickedNode = null)} class="">
+    {#snippet header()}
+        <h1>Informations</h1>
+        <h2 class="text-dark-gray mt-2 text-lg">{clickedNode?.label}</h2>
+    {/snippet}
+</Modal>
 
 <style lang="postcss">
     :global(body) {

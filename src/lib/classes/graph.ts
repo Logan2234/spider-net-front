@@ -4,12 +4,70 @@ import { Link } from './link';
 import { Node } from './node';
 
 export class Graph implements DrawableElement {
+    private hoveredNode: Node | null = null;
+    private lastMousePos: Point2D | null = null;
+    private clickedPos: Point2D | null = null;
+    private nodes: Node[] = [];
+    private links: Link[] = [];
+
     constructor(
         private ctx: CanvasRenderingContext2D,
         private mainNode: Node,
-        private nodes: Node[] = [],
-        private links: Link[] = []
-    ) {}
+        private onMouseMove?: (event: MouseEvent, hoveredNode: Node | null) => void,
+        private onNodeClick?: (node: Node) => void
+    ) {
+        this.ctx.canvas.onmousemove = (e: MouseEvent) => {
+            if (this.clickedPos && this.lastMousePos) {
+                const delta = new Point2D(
+                    e.offsetX - this.lastMousePos.x,
+                    e.offsetY - this.lastMousePos.y
+                );
+
+                this.translate(delta.x, delta.y);
+            }
+
+            this.lastMousePos = new Point2D(e.offsetX, e.offsetY);
+
+            const hoveredNode =
+                this.nodes.find((node) => {
+                    return this.lastMousePos!.getDistance(node.coord) < node.radius;
+                }) || null;
+
+            if (hoveredNode) {
+                this.hoveredNode = hoveredNode;
+                this.hoveredNode.fill = true;
+            } else if (this.hoveredNode) {
+                this.hoveredNode.fill = false;
+                this.hoveredNode = null;
+            }
+
+            this.onMouseMove?.(e, this.hoveredNode);
+        };
+
+        this.ctx.canvas.onmousedown = (e: MouseEvent) => {
+            if (e.button === 0) {
+                this.clickedPos = new Point2D(e.offsetX, e.offsetY);
+            }
+        };
+
+        this.ctx.canvas.onmouseup = (e: MouseEvent) => {
+            if (
+                this.hoveredNode &&
+                e.offsetX === this.clickedPos?.x &&
+                e.offsetY === this.clickedPos?.y
+            ) {
+                this.onNodeClick?.(this.hoveredNode);
+            }
+
+            this.clickedPos = null;
+        };
+    }
+
+    destroy(): void {
+        this.ctx.canvas.onmousemove = null;
+        this.ctx.canvas.onmousedown = null;
+        this.ctx.canvas.onmouseup = null;
+    }
 
     addNode(
         weight: number = 1,
@@ -37,6 +95,19 @@ export class Graph implements DrawableElement {
             this.moveFromOtherNodes(node);
             node.move();
         });
+    }
+
+    draw(): void {
+        this.clearCanvas();
+        this.mainNode.draw(this.ctx);
+        this.links.forEach((link) => link.draw(this.ctx));
+        this.nodes.forEach((node) => {
+            node.draw(this.ctx);
+        });
+    }
+
+    clearCanvas(): void {
+        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
     }
 
     private moveFromCenterNode(node: Node) {
@@ -74,27 +145,12 @@ export class Graph implements DrawableElement {
         });
     }
 
-    translate(x: number, y: number): void {
+    private translate(x: number, y: number): void {
         this.mainNode.translate(x, y);
 
         for (const node of this.nodes) {
             node.translate(x, y);
         }
-    }
-
-    draw(): void {
-        this.clearCanvas();
-        this.mainNode.draw(this.ctx);
-        this.links.forEach((link) => link.draw(this.ctx));
-        this.nodes.forEach((node) => node.draw(this.ctx));
-    }
-
-    clearCanvas(): void {
-        this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
-    }
-
-    toString(): string {
-        return `Graph(nodes=${this.nodes}, links=${this.links})`;
     }
 
     private randomPosition(max: number): number {
@@ -110,5 +166,9 @@ export class Graph implements DrawableElement {
         }
 
         return color + 'FF';
+    }
+
+    toString(): string {
+        return `Graph(nodes=${this.nodes}, links=${this.links})`;
     }
 }

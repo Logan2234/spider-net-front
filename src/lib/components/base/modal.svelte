@@ -7,13 +7,15 @@
         footer = null,
         showCloseButton = true,
         open = $bindable(false),
+        class: modalClass = '',
         onClose
     }: {
-        header: any;
-        content: any;
-        footer: any;
+        header?: any;
+        content?: any;
+        footer?: any;
         open: boolean;
         showCloseButton?: boolean;
+        class?: string;
         onClose?: (...args: any) => any;
     } = $props();
 
@@ -57,7 +59,7 @@
     onkeydown={onKeyPressHandler}
     class="{show && open
         ? 'translate-y-0 opacity-100'
-        : 'translate-y-[10vh] opacity-0'} bg-main-color text-font-primary flex-col gap-8 self-center justify-self-center rounded-xl p-8 duration-150 backdrop:backdrop-blur-xs backdrop:backdrop-brightness-50 open:flex 2xl:max-w-1/2">
+        : 'translate-y-[10vh] opacity-0'} bg-main-color text-font-primary flex-col gap-8 self-center justify-self-center rounded-xl px-12 py-8 duration-150 backdrop:backdrop-blur-xs backdrop:backdrop-brightness-50 open:flex sm:min-h-1/3 sm:max-w-3/5 sm:min-w-1/3 {modalClass}">
     {#if showCloseButton}
         <button
             type="button"
@@ -68,10 +70,14 @@
         </button>
     {/if}
     {#if header}
-        {@render header()}
+        <div class="text-4xl font-bold">
+            {@render header()}
+        </div>
     {/if}
     {#if content}
-        {@render content()}
+        <div>
+            {@render content()}
+        </div>
     {/if}
     {#if footer}
         <div class="flex flex-row justify-end">

@@ -31,8 +31,8 @@
             message="Ceci est un tooltip mais GIGA GIGA GIGA GIGA GIGA GIGA GIGA GIGA GIGA GIGA GIGA GIGA LONG" />
         <Tooltip
             {target}
-            x={-50}
-            y={100}
+            dx={-50}
+            dy={100}
             message="Tooltip avec position personnalisée: x: -50, y: 100" />
         <div
             bind:this={target}
@@ -81,13 +81,16 @@
                     <Input label="Normal" />
                     <Input label="Required" required />
                     <Input label="Disabled" disabled />
-                    <Input label="With placeholder" placeholder="Placeholder..."  />
-                    <Input label="With no validation" withValidationIndicators={false} value="test" />
+                    <Input label="With placeholder" placeholder="Placeholder..." />
+                    <Input
+                        label="With no validation"
+                        withValidationIndicators={false}
+                        value="test" />
                 </div>
             </div>
             <div>
                 <h2 class={subtitle}>Types</h2>
-                <div class="flex flex-row flex-wrap gap-4 align-center">
+                <div class="align-center flex flex-row flex-wrap gap-4">
                     <Input label="Number" placeholder="849" type="number" />
                     <Input label="URL" placeholder="https://google.com" type="url" />
                     <Input label="Email" placeholder="this+is@email.com" type="email" />
@@ -106,7 +109,7 @@
 
     <Modal bind:open={modalOpen}>
         {#snippet header()}
-            <h1 class="text-xl font-bold">Modal</h1>
+            <h1>Modal</h1>
         {/snippet}
 
         {#snippet content()}

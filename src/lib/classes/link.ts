@@ -11,15 +11,17 @@ export class Link implements DrawableElement {
         const angle = this.from.coord.getAngle(this.to.coord);
 
         ctx.beginPath();
+
         ctx.moveTo(
             this.from.coord.x + Math.cos(angle) * this.from.radius,
             this.from.coord.y + Math.sin(angle) * this.from.radius
         );
+
         ctx.lineTo(
             this.to.coord.x - Math.cos(angle) * this.to.radius,
             this.to.coord.y - Math.sin(angle) * this.to.radius
         );
-        ctx.strokeStyle = this.to.color;
+
         ctx.stroke();
     }
 
