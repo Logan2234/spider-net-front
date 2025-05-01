@@ -1,8 +1,26 @@
 export class Vector2D {
+    static zero: Vector2D = new Vector2D(0, 0);
+
     constructor(
         public x: number = 0,
         public y: number = 0
     ) {}
+
+    get magnitude(): number {
+        return Math.sqrt(this.x ** 2 + this.y ** 2);
+    }
+
+    normalize(): this {
+        const mag = this.magnitude;
+        if (mag === 0) {
+            this.x = 0;
+            this.y = 0;
+        } else {
+            this.x /= mag;
+            this.y /= mag;
+        }
+        return this;
+    }
 
     add(vector: Vector2D): this {
         this.x += vector.x;
