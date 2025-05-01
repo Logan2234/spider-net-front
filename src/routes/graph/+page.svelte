@@ -79,7 +79,7 @@
 
 <Tooltip message={showTooltip} class="bottom-8 left-1/2 -translate-x-1/2" />
 
-<Modal open={!!clickedNode} onClose={() => (clickedNode = null)} class="">
+<Modal open={!!clickedNode} onClose={() => (clickedNode = null)}>
     {#snippet header()}
         <h1>Informations</h1>
         <h2 class="text-dark-gray mt-2 text-lg">{clickedNode?.label}</h2>

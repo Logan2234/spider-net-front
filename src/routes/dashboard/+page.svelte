@@ -17,7 +17,9 @@
         totalInQueue: 0,
         totalLinks: 0,
         totalVisited: 0,
-        memoryUsage: 0
+        totalErrors: 0,
+        memoryUsage: 0,
+        crawlingOngoing: false
     });
 
     onMount(() => {
@@ -78,6 +80,7 @@
         class="w-[20rem]"
         placeholder="Enter the URL to scrap"
         required={true} />
+
     <Button type="submit" color="simple" label="Add URL in queue" />
 </form>
 
@@ -102,14 +105,23 @@
         <Card title="Links" subtitle="Number of links found">
             <div class={cardStyle}>{stats.totalLinks}</div>
         </Card>
+
+        <Card title="Errored" subtitle="Number of errored links">
+            <div class={cardStyle}>{stats.totalErrors}</div>
+        </Card>
         <div class="flex flex-col justify-center gap-4 px-8">
             <Button
                 label="Start crawling"
                 onclick={startCrawling}
                 type="button"
                 color="simple"
-                disabled={stats.totalInQueue === 0} />
-            <Button label="Stop crawling" onclick={stopCrawling} type="reset" color="simple" />
+                disabled={stats.totalInQueue === 0 || stats.crawlingOngoing} />
+            <Button
+                label="Stop crawling"
+                onclick={stopCrawling}
+                type="reset"
+                color="simple"
+                disabled={!stats.crawlingOngoing} />
         </div>
     </div>
 {:else}

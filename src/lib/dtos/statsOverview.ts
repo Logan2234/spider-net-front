@@ -3,5 +3,7 @@ export interface StatsOverview {
     totalInQueue: number;
     totalLinks: number;
     totalVisited: number;
+    totalErrors: number;
     memoryUsage: number;
+    crawlingOngoing: boolean;
 }
