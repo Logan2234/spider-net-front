@@ -5,5 +5,5 @@ export interface StatsOverview {
     totalVisited: number;
     totalErrors: number;
     memoryUsage: number;
-    crawlingOngoing: boolean;
+    nbWorkers: number;
 }

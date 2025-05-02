@@ -1,106 +1,106 @@
 <script lang="ts">
-    import { beforeNavigate } from '$app/navigation';
-    import { allowScroll, blockScroll } from '$lib/utils/htmlDocumentHelper';
-    import { onMount } from 'svelte';
-    import { fade } from 'svelte/transition';
-    import Input from '../base/input.svelte';
-    import SearchResultBlock from './searchResultBlock.svelte';
+  import { beforeNavigate } from '$app/navigation';
+  import { allowScroll, blockScroll } from '$lib/utils/htmlDocumentHelper';
+  import { onMount } from 'svelte';
+  import { fade } from 'svelte/transition';
+  import Input from '../base/input.svelte';
+  import SearchResultBlock from './searchResultBlock.svelte';
 
-    let focusedOnUrlInput = $state(false);
-    let focusedOnUrlSearch = $state(false);
-    let value = $state('');
-    let oldResponse = $state([]);
-    let searchPromise: Promise<any[]> = $state(null!);
-    let loading = $state(false);
+  let focusedOnUrlInput = $state(false);
+  let focusedOnUrlSearch = $state(false);
+  let value = $state('');
+  let oldResponse = $state([]);
+  let searchPromise: Promise<any[]> = $state(null!);
+  let loading = $state(false);
 
-    onMount(() => {
-        beforeNavigate(() => {
-            focusedOnUrlSearch = false;
-        });
+  onMount(() => {
+    beforeNavigate(() => {
+      focusedOnUrlSearch = false;
     });
+  });
 
-    $effect(() => {
-        if (focusedOnUrlInput && !focusedOnUrlSearch) {
-            focusedOnUrlSearch = true;
-            blockScroll();
-        } else if (!focusedOnUrlSearch) {
-            value = '';
-            setTimeout(() => {
-                allowScroll();
-            }, 200);
-        }
-    });
+  $effect(() => {
+    if (focusedOnUrlInput && !focusedOnUrlSearch) {
+      focusedOnUrlSearch = true;
+      blockScroll();
+    } else if (!focusedOnUrlSearch) {
+      value = '';
+      setTimeout(() => {
+        allowScroll();
+      }, 200);
+    }
+  });
 
-    $effect(() => {
-        value = value.trimStart();
+  $effect(() => {
+    value = value.trimStart();
 
-        if (!value) {
-            oldResponse = [];
-            return;
-        }
+    if (!value) {
+      oldResponse = [];
+      return;
+    }
 
-        loading = true;
+    loading = true;
 
-        searchPromise = fetch('https://localhost:4000/api/v1/search?searchTerm=' + value, {
-            method: 'GET'
-        })
-            .then((response) => response.json())
-            .then((response) => {
-                oldResponse = response;
-                return response || [];
-            })
-            .finally(() => {
-                loading = false;
-            });
-    });
+    searchPromise = fetch('https://localhost:4000/api/v1/search?searchTerm=' + value, {
+      method: 'GET'
+    })
+      .then((response) => response.json())
+      .then((response) => {
+        oldResponse = response;
+        return response || [];
+      })
+      .finally(() => {
+        loading = false;
+      });
+  });
 
-    const onWindowKeyDown = (e: KeyboardEvent) => {
-        if (e.key === 'Escape' || (e.key === 'Tab' && !value)) {
-            focusedOnUrlSearch = false;
-            (document.activeElement as HTMLInputElement)?.blur();
-        }
+  const onWindowKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Escape' || (e.key === 'Tab' && !value)) {
+      focusedOnUrlSearch = false;
+      (document.activeElement as HTMLInputElement)?.blur();
+    }
 
-        if (e.ctrlKey && e.key === 'k') {
-            focusedOnUrlInput = true;
-            e.preventDefault();
-        }
-    };
+    if (e.ctrlKey && e.key === 'k') {
+      focusedOnUrlInput = true;
+      e.preventDefault();
+    }
+  };
 </script>
 
 <svelte:window onkeydown={onWindowKeyDown} />
 
 <div class="z-1 flex-5/6 duration-200 {focusedOnUrlSearch ? 'translate-y-[5vh] scale-150' : ''}">
-    <Input
-        bind:focused={focusedOnUrlInput}
-        bind:value
-        type="text"
-        withValidationIndicators={false}
-        placeholder="https://www.example.com"
-        containerClass={`max-w-2/5 mx-auto ${
-            loading
-                ? 'after:opacity-60 after:delay-1000 after:animate-[spin_1.5s_linear_infinite_1s] after:fade-in'
-                : 'after:opacity-0'
-        } after:w-6 after:h-6 after:absolute after:border-r-transparent after:border-3 after:rounded-full after:right-2 after:top-4`}
-        class="w-full rounded-full! border-0 px-6 py-1 shadow-lg" />
+  <Input
+    bind:focused={focusedOnUrlInput}
+    bind:value
+    type="text"
+    withValidationIndicators={false}
+    placeholder="https://www.example.com"
+    containerClass={`max-w-2/5 mx-auto ${
+      loading
+        ? 'after:opacity-60 after:delay-1000 after:animate-[spin_1.5s_linear_infinite_1s] after:fade-in'
+        : 'after:opacity-0'
+    } after:w-6 after:h-6 after:absolute after:border-r-transparent after:border-3 after:rounded-full after:right-2 after:top-4`}
+    class="w-full rounded-full! border-0 px-6 py-1 shadow-lg" />
 
-    {#if value}
-        {#await searchPromise}
-            <SearchResultBlock {loading} results={oldResponse} />
-        {:then response}
-            <SearchResultBlock results={response} />
-        {:catch error}
-            <SearchResultBlock {error} />
-        {/await}
-    {/if}
+  {#if value}
+    {#await searchPromise}
+      <SearchResultBlock {loading} results={oldResponse} />
+    {:then response}
+      <SearchResultBlock results={response} />
+    {:catch error}
+      <SearchResultBlock {error} />
+    {/await}
+  {/if}
 </div>
 
 {#if focusedOnUrlSearch}
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <div
-        role="dialog"
-        tabindex="-1"
-        onclick={() => (focusedOnUrlSearch = false)}
-        transition:fade={{ duration: 150 }}
-        class="fixed top-0 left-0 flex h-full w-full items-center justify-center bg-black/30 backdrop-blur-sm">
-    </div>
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <div
+    role="dialog"
+    tabindex="-1"
+    onclick={() => (focusedOnUrlSearch = false)}
+    transition:fade={{ duration: 150 }}
+    class="fixed top-0 left-0 flex h-full w-full items-center justify-center bg-black/30 backdrop-blur-sm">
+  </div>
 {/if}
