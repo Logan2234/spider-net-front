@@ -4,7 +4,7 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-    --background: #ffe8ec;
+    --background: #ececec;
     --font-primary: #000000;
     --font-secondary: #ffffff;
     --primary: #ff0000;

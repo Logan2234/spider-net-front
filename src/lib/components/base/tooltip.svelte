@@ -4,7 +4,7 @@
     let {
         message = '',
         target,
-        class: tooltipClass ='',
+        class: tooltipClass = '',
         dx = 0,
         dy = 0
     }: {
@@ -15,18 +15,16 @@
         dy?: number;
     } = $props();
 
-    let showTooltip = $state(target ? false : true);
+    let showTooltip = $state(false);
     let tooltip: HTMLDivElement | undefined = $state();
 
     $effect(() => {
         target?.addEventListener('mouseenter', () => (showTooltip = true));
         target?.addEventListener('mouseleave', () => (showTooltip = false));
 
-        if (tooltip) {
-            if (target) {
-                tooltip.style.top = `${target.offsetTop - tooltip.offsetHeight + target.offsetTop / 8 + dy}px`;
-                tooltip.style.left = `${target.offsetLeft - tooltip.offsetWidth - 10 + dx}px`;
-            }
+        if (tooltip && target) {
+            tooltip.style.top = `${target.offsetTop - tooltip.offsetHeight + target.offsetTop / 8 + dy}px`;
+            tooltip.style.left = `${target.offsetLeft - tooltip.offsetWidth - 10 + dx}px`;
         }
 
         return () => {

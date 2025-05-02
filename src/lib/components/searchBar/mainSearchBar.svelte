@@ -25,7 +25,9 @@
             blockScroll();
         } else if (!focusedOnUrlSearch) {
             value = '';
-            allowScroll();
+            setTimeout(() => {
+                allowScroll();
+            }, 200);
         }
     });
 
@@ -53,7 +55,7 @@
     });
 
     const onWindowKeyDown = (e: KeyboardEvent) => {
-        if (e.key === 'Escape') {
+        if (e.key === 'Escape' || (e.key === 'Tab' && !value)) {
             focusedOnUrlSearch = false;
             (document.activeElement as HTMLInputElement)?.blur();
         }
@@ -67,17 +69,14 @@
 
 <svelte:window onkeydown={onWindowKeyDown} />
 
-<div
-    class="z-1 max-w-2/5 flex-1 duration-200 {focusedOnUrlSearch
-        ? 'translate-y-[5vh] scale-150'
-        : ''}">
+<div class="z-1 flex-5/6 duration-200 {focusedOnUrlSearch ? 'translate-y-[5vh] scale-150' : ''}">
     <Input
         bind:focused={focusedOnUrlInput}
         bind:value
         type="text"
         withValidationIndicators={false}
         placeholder="https://www.example.com"
-        containerClass={`${
+        containerClass={`max-w-2/5 mx-auto ${
             loading
                 ? 'after:opacity-60 after:delay-1000 after:animate-[spin_1.5s_linear_infinite_1s] after:fade-in'
                 : 'after:opacity-0'
