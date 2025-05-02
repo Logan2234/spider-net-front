@@ -22,6 +22,7 @@
   let stopInterval: NodeJS.Timeout | undefined;
 
   let ctx: CanvasRenderingContext2D;
+
   onMount(() => {
     const canvas = document.getElementById('graph') as HTMLCanvasElement;
     ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
@@ -43,8 +44,7 @@
   function loadGraph(domain: string) {
     const mainNode = new Node(
       new Vector2D(pageWidth / 2, pageHeight / 2),
-      10 + 0.1 * (data.stats?.visited || 0),
-      'black',
+      10 + 2 * (data.stats?.visited || 0),
       domain
     );
 
@@ -61,7 +61,10 @@
     );
 
     data.stats?.links.forEach((link, index) => {
-      setTimeout(() => graph.addNode(link.weight, 'black', link.from), index * 10);
+      setTimeout(
+        () => graph.addNode(link.weight + 1000 / data.stats.links.length, link.from),
+        index * 10
+      );
     });
 
     return setInterval(() => {
