@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onDestroy, onMount } from 'svelte';
   import { scale } from 'svelte/transition';
 
   let {
@@ -16,23 +16,22 @@
   onMount(() => {
     if (!target) {
       showTooltip = true;
+    } else {
+      target?.addEventListener('mouseenter', () => (showTooltip = true));
+      target?.addEventListener('mouseleave', () => (showTooltip = false));
     }
   });
 
-  $effect(() => {
-    console.log(target);
-    target?.addEventListener('mouseenter', () => (showTooltip = true));
-    target?.addEventListener('mouseleave', () => (showTooltip = false));
+  onDestroy(() => {
+    target?.removeEventListener('mouseenter', () => (showTooltip = true));
+    target?.removeEventListener('mouseleave', () => (showTooltip = false));
+  });
 
+  $effect(() => {
     if (tooltip && target) {
       tooltip.style.top = `${target.offsetTop - tooltip.offsetHeight + target.offsetTop / 8 + dy}px`;
       tooltip.style.left = `${target.offsetLeft - tooltip.offsetWidth - 10 + dx}px`;
     }
-
-    return () => {
-      target?.removeEventListener('mouseenter', () => (showTooltip = true));
-      target?.removeEventListener('mouseleave', () => (showTooltip = false));
-    };
   });
 </script>
 
