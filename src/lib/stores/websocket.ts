@@ -1,49 +1,49 @@
 import { writable, type Writable } from 'svelte/store';
 
 export function createWebSocket<TReadMessage = string, TSendMessage = string>(
-    url: string,
-    overrideMessage = false,
-    route: 'dashboard' | string = ''
+  url: string,
+  overrideMessage = false,
+  route: 'dashboard' | string = ''
 ) {
-    const messages: Writable<TReadMessage[]> = writable([]);
-    let socket: WebSocket;
+  const messages: Writable<TReadMessage[]> = writable([]);
+  let socket: WebSocket;
 
-    function connect() {
-        socket = new WebSocket(url);
+  function connect() {
+    socket = new WebSocket(url);
 
-        socket.addEventListener('open', () => {
-            console.log('Connected to WebSocket');
-            socket.send('SUBSCRIBE:' + route);
-        });
+    socket.addEventListener('open', () => {
+      console.log('Connected to WebSocket');
+      socket.send('SUBSCRIBE:' + route);
+    });
 
-        socket.addEventListener('message', (event: MessageEvent) => {
-            const parsedData = JSON.parse(event.data);
-            if (overrideMessage) {
-                messages.set([parsedData]);
-            } else {
-                messages.update((msgs) => [...msgs, parsedData]);
-            }
-        });
+    socket.addEventListener('message', (event: MessageEvent) => {
+      const parsedData = JSON.parse(event.data);
+      if (overrideMessage) {
+        messages.set([parsedData]);
+      } else {
+        messages.update((msgs) => [...msgs, parsedData]);
+      }
+    });
 
-        socket.addEventListener('close', () => {
-            console.log('WebSocket disconnected. Reconnecting...');
-            setTimeout(connect, 3000); // Auto-reconnect
-        });
+    socket.addEventListener('close', () => {
+      console.log('WebSocket disconnected. Reconnecting...');
+      setTimeout(connect, 3000); // Auto-reconnect
+    });
 
-        socket.addEventListener('error', (error) => {
-            console.error('WebSocket Error:', error);
-        });
+    socket.addEventListener('error', (error) => {
+      console.error('WebSocket Error:', error);
+    });
+  }
+
+  function sendMessage(msg: TSendMessage) {
+    if (socket.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify(msg));
+    } else {
+      console.error('WebSocket not connected!');
     }
+  }
 
-    function sendMessage(msg: TSendMessage) {
-        if (socket.readyState === WebSocket.OPEN) {
-            socket.send(JSON.stringify(msg));
-        } else {
-            console.error('WebSocket not connected!');
-        }
-    }
+  connect();
 
-    connect();
-
-    return { subscribe: messages.subscribe, sendMessage };
+  return { subscribe: messages.subscribe, sendMessage, messages };
 }

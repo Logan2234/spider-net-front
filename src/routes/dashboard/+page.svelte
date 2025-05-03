@@ -1,6 +1,6 @@
 <script lang="ts">
   import Button from '$lib/components/base/button.svelte';
-  import Card from '$lib/components/base/card.svelte';
+  import DashboardCard from '$lib/components/dashboardCard.svelte';
   import type { StatsOverview } from '$lib/dtos/statsOverview';
   import { createWebSocket } from '$lib/stores/websocket';
   import { toHumanReadableMemory } from '$lib/utils/humanReadable';
@@ -18,7 +18,7 @@
     nbWorkers: 0
   });
 
-  let firstStatsReceived: StatsOverview = $state({
+  let oldStats: StatsOverview = $state({
     totalDomains: 0,
     totalInQueue: 0,
     totalLinks: 0,
@@ -27,23 +27,26 @@
     memoryUsage: 0,
     nbWorkers: 0
   });
+
   let nbOfReceivedStats: number = $state(0);
 
   onMount(() => {
-    const { subscribe } = createWebSocket<StatsOverview>('wss://localhost:4000', true, 'dashboard');
+    const { subscribe, messages } = createWebSocket<StatsOverview>(
+      'wss://localhost:4000',
+      false,
+      'dashboard'
+    );
 
     subscribe((data: StatsOverview[]) => {
-      if (data.length === 0) return;
+      if (data.length < 2) return;
 
-      if (data[0].nbWorkers) {
-        if (firstStatsReceived.nbWorkers === 0) {
-          firstStatsReceived = data[0];
-        }
-
+      if (data[1].nbWorkers) {
         nbOfReceivedStats += 1;
       }
 
-      stats = data[0];
+      oldStats = data[0];
+      stats = data[1];
+      messages.set([data[1]]);
     });
   });
 
@@ -73,80 +76,57 @@
 </script>
 
 <div class="m-24 flex flex-row flex-wrap gap-8">
-  <Card
-    class="min-w-3xs flex-1/4 sm:flex-1/6"
+  <DashboardCard
     title="Domains"
     subtitle="Number of known domains"
-    onclick={() => {}}>
-    <div class="py-4 text-4xl">{stats.totalDomains}</div>
-    {#if stats.nbWorkers}
-      <div class="text-sm opacity-50">
-        {Math.round(
-          ((stats.totalDomains - firstStatsReceived.totalDomains) / nbOfReceivedStats / 2) * 100
-        ) / 100}/s
-      </div>
-    {/if}
-  </Card>
+    onclick={() => {}}
+    value={stats.totalDomains}
+    previous={oldStats.totalDomains}
+    nbOfStats={nbOfReceivedStats}
+    isRunning={stats.nbWorkers} />
 
-  <Card
-    class="min-w-3xs flex-1/4 sm:flex-1/6"
+  <DashboardCard
     title="Queue"
     subtitle="Number of urls in queue"
-    onclick={() => {}}>
-    <div class="py-4 text-4xl">{stats.totalInQueue}</div>
-    {#if stats.nbWorkers}
-      <div class="text-sm opacity-50">
-        {Math.round(
-          ((stats.totalInQueue - firstStatsReceived.totalInQueue) / nbOfReceivedStats / 2) * 100
-        ) / 100}/s
-      </div>
-    {/if}
-  </Card>
+    onclick={() => {}}
+    value={stats.totalInQueue}
+    previous={oldStats.totalInQueue}
+    isRunning={stats.nbWorkers}
+    nbOfStats={nbOfReceivedStats} />
 
-  <Card
-    class="min-w-3xs flex-1/4 sm:flex-1/6"
+  <DashboardCard
     title="Visited"
     subtitle="Number of visited urls"
-    onclick={() => {}}>
-    <div class="py-4 text-4xl">{stats.totalVisited}</div>
-    {#if stats.nbWorkers}
-      <div class="text-sm opacity-50">
-        {Math.round(
-          ((stats.totalVisited - firstStatsReceived.totalVisited) / nbOfReceivedStats / 2) * 100
-        ) / 100}/s
-      </div>
-    {/if}
-  </Card>
+    onclick={() => {}}
+    value={stats.totalVisited}
+    previous={oldStats.totalVisited}
+    isRunning={stats.nbWorkers}
+    nbOfStats={nbOfReceivedStats} />
 
-  <Card
-    class="min-w-3xs flex-1/4 sm:flex-1/6"
+  <DashboardCard
     title="Links"
     subtitle="Number of links found"
-    onclick={() => {}}>
-    <div class="py-4 text-4xl">{stats.totalLinks}</div>
-    {#if stats.nbWorkers}
-      <div class="text-sm opacity-50">
-        {Math.round(
-          ((stats.totalLinks - firstStatsReceived.totalLinks) / nbOfReceivedStats / 2) * 100
-        ) / 100}/s
-      </div>
-    {/if}
-  </Card>
+    onclick={() => {}}
+    value={stats.totalLinks}
+    previous={oldStats.totalLinks}
+    isRunning={stats.nbWorkers}
+    nbOfStats={nbOfReceivedStats}>
+  </DashboardCard>
 
-  <Card
-    class="min-w-3xs flex-1/4 sm:flex-1/6"
+  <DashboardCard
+    value={stats.totalErrors}
+    previous={oldStats.totalErrors}
+    isRunning={stats.nbWorkers}
+    nbOfStats={nbOfReceivedStats}
+    onclick={() => {}}
     title="Errored"
-    subtitle="Number of errored links"
-    onclick={() => {}}>
-    <div class="py-4 text-4xl">{stats.totalErrors}</div>
-    {#if stats.nbWorkers}
-      <div class="text-sm opacity-50">
-        {Math.round(
-          ((stats.totalErrors - firstStatsReceived.totalErrors) / nbOfReceivedStats / 2) * 100
-        ) / 100}/s
-      </div>
-    {/if}
-  </Card>
+    subtitle="Number of errored links" />
+
+  <DashboardCard
+    title="Workers"
+    subtitle="Number of workers"
+    onclick={() => {}}
+    value={stats.nbWorkers} />
 </div>
 
 {#if error}

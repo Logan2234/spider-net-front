@@ -1,13 +1,15 @@
 const toHumanReadableMemory = (bytes: number): string => {
-    const units = ['o', 'ko', 'Mo', 'Go', 'To'];
-    let unitIndex = 0;
+  const units = ['o', 'ko', 'Mo', 'Go', 'To'];
+  let unitIndex = 0;
 
-    while (bytes >= 1024) {
-        bytes /= 1024;
-        unitIndex++;
-    }
+  while (bytes >= 1024) {
+    bytes /= 1024;
+    unitIndex++;
+  }
 
-    return bytes.toFixed(2) + units[unitIndex];
+  return bytes.toFixed(2) + units[unitIndex];
 };
 
-export { toHumanReadableMemory };
+const formatNumber = (num: number): string => num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+
+export { formatNumber, toHumanReadableMemory };

@@ -14,6 +14,7 @@
   const { data }: PageProps = $props();
 
   let showTooltip = $state('');
+  let openContextMenu: { node: Node; pos: Vector2D } | null = $state(null);
   let clickedNode: Node | null = $state(null);
 
   const pageWidth = $derived(innerWidth.current || 0);
@@ -55,8 +56,23 @@
         showTooltip = hoveredNode?.label || '';
         ctx.canvas.style.cursor = hoveredNode ? 'pointer' : 'default';
       },
-      (node: Node) => {
-        clickedNode = node;
+      (e: MouseEvent, node: Node) => {
+        e.preventDefault();
+        switch (e.button) {
+          case 0:
+            clickedNode = node;
+            break;
+          case 1:
+            open('https://' + node.label, '_blank');
+            break;
+          case 2:
+            openContextMenu = openContextMenu
+              ? null
+              : { node, pos: new Vector2D(e.clientX, e.clientY) };
+            break;
+          default:
+            break;
+        }
       }
     );
 
@@ -85,6 +101,40 @@
 <Modal open={!!clickedNode} onClose={() => (clickedNode = null)}>
   {#snippet header()}
     <h1>Informations</h1>
-    <h2 class="text-dark-gray mt-2 text-lg">{clickedNode?.label}</h2>
+    <a
+      class="text-dark-gray hover:text-black-or-white/70 mt-2 text-lg duration-150 hover:text-shadow-lg"
+      target="_blank"
+      href={`https://${clickedNode?.label}`}>{clickedNode?.label}</a>
   {/snippet}
 </Modal>
+
+{#if !!openContextMenu}
+  <div
+    class="border-font-primary/40 bg-font-secondary/50 absolute flex flex-col gap-1 rounded-lg border-2 p-2 text-left text-sm whitespace-nowrap"
+    style={`left: ${openContextMenu.pos.x + 10}px; top: ${openContextMenu.pos.y + 10}px;`}>
+    <button
+      class="hover:bg-dark-gray/30 flex cursor-pointer items-baseline gap-2 rounded-lg p-2 duration-150"
+      onclick={() => {}}>
+      <i class="fa-solid fa-chart-simple w-4"></i>
+      Open stats
+    </button>
+    <button
+      class="hover:bg-dark-gray/30 flex cursor-pointer items-baseline gap-2 rounded-lg p-2 duration-150"
+      onclick={() => {}}>
+      <i class="fa-solid fa-hexagon-nodes w-4"></i>
+      Open graph
+    </button>
+    <button
+      class="hover:bg-dark-gray/30 flex cursor-pointer items-baseline gap-2 rounded-lg p-2 duration-150"
+      onclick={() => {}}>
+      <i class="fa-solid fa-arrow-up-right-from-square w-4"></i>
+      Open link in new tab
+    </button>
+    <button
+      class="hover:bg-dark-gray/30 flex cursor-pointer items-baseline gap-2 rounded-lg p-2 duration-150"
+      onclick={() => {}}>
+      <i class="fa-solid fa-clipboard w-4"></i>
+      Copy link
+    </button>
+  </div>
+{/if}

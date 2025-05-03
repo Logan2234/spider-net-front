@@ -14,12 +14,12 @@ export class Graph implements DrawableElement {
     private ctx: CanvasRenderingContext2D,
     private mainNode: Node,
     private onMouseMove?: (event: MouseEvent, hoveredNode: Node | null) => void,
-    private onNodeClick?: (node: Node) => void
+    private onNodeClick?: (e: MouseEvent, node: Node) => void
   ) {
     this.ctx.canvas.onmousemove = (e: MouseEvent) => {
       const delta = new Vector2D(e.offsetX - this.lastMousePos.x, e.offsetY - this.lastMousePos.y);
 
-      if (this.clickedPos && !this.hoveredNode) {
+      if (e.buttons === 1 && !this.hoveredNode) {
         this.translate(delta.x, delta.y);
       }
 
@@ -35,7 +35,7 @@ export class Graph implements DrawableElement {
 
           this.hoveredNode = hoveredNode;
           this.hoveredNode.hovered = true;
-        } else {
+        } else if (e.buttons === 1) {
           this.hoveredNode?.translate(delta.x, delta.y);
         }
       } else if (this.hoveredNode) {
@@ -44,13 +44,12 @@ export class Graph implements DrawableElement {
       }
 
       this.onMouseMove?.(e, this.hoveredNode);
+
       this.lastMousePos = new Vector2D(e.offsetX, e.offsetY);
     };
 
     this.ctx.canvas.onmousedown = (e: MouseEvent) => {
-      if (e.button === 0) {
-        this.clickedPos = new Vector2D(e.offsetX, e.offsetY);
-      }
+      this.clickedPos = new Vector2D(e.offsetX, e.offsetY);
     };
 
     this.ctx.canvas.onmouseup = (e: MouseEvent) => {
@@ -62,7 +61,7 @@ export class Graph implements DrawableElement {
         if (e.ctrlKey) {
           // TODO : Open link in new tab
         } else {
-          this.onNodeClick?.(this.hoveredNode);
+          this.onNodeClick?.(e, this.hoveredNode);
         }
       }
 
