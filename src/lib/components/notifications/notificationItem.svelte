@@ -6,7 +6,7 @@
 
   onMount(() => {
     const timeout = setTimeout(() => {
-        notifications.close(notification.id);
+      notifications.close(notification.id);
     }, notification.timeout);
 
     return () => {
@@ -36,11 +36,17 @@
   }[notification.type];
 </script>
 
-<div
-  class={`flex flex-col gap-2 rounded-lg border-2 bg-gray-200 p-4 shadow-md dark:bg-gray-600 ${border}`}>
+<div class={`relative rounded-lg border-2 bg-gray-200 p-4 shadow-md dark:bg-gray-600 ${border}`}>
+  <button
+    type="button"
+    aria-label="Close notification"
+    onclick={() => notifications.close(notification.id)}
+    class="hover:text-black-or-white focus:text-black-or-white text-md absolute top-4 right-5 cursor-pointer rounded-full opacity-80 duration-150 outline-none">
+    <i class="fa-solid fa-xmark"></i>
+  </button>
   <div class="flex items-baseline gap-2">
     <i class={`fa-solid ${icon} ${color}`}></i>
     <p class={color + ' brightness-125'}>{notification.title}</p>
   </div>
-  <p class="pl-6">{notification.message}</p>
+  <p class="mt-2 pl-6">{notification.message}</p>
 </div>
