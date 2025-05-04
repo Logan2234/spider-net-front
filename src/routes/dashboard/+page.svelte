@@ -31,13 +31,9 @@
   let nbOfReceivedStats: number = $state(0);
 
   onMount(() => {
-    const { subscribe, messages } = createWebSocket<StatsOverview>(
-      'wss://localhost:4000',
-      false,
-      'dashboard'
-    );
+    const { messages } = createWebSocket<StatsOverview>('wss://localhost:4000', false, 'dashboard');
 
-    subscribe((data: StatsOverview[]) => {
+    const unsubscribe = messages.subscribe((data: StatsOverview[]) => {
       if (data.length < 2) return;
 
       if (data[1].nbWorkers) {
@@ -48,6 +44,10 @@
       stats = data[1];
       messages.set([data[1]]);
     });
+
+    return () => {
+      unsubscribe();
+    };
   });
 
   const startCrawling = async () => {
@@ -83,7 +83,7 @@
     value={stats.totalDomains}
     previous={oldStats.totalDomains}
     nbOfStats={nbOfReceivedStats}
-    isRunning={stats.nbWorkers} />
+    isRunning={!!stats.nbWorkers} />
 
   <DashboardCard
     title="Queue"
@@ -91,7 +91,7 @@
     onclick={() => {}}
     value={stats.totalInQueue}
     previous={oldStats.totalInQueue}
-    isRunning={stats.nbWorkers}
+    isRunning={!!stats.nbWorkers}
     nbOfStats={nbOfReceivedStats} />
 
   <DashboardCard
@@ -100,7 +100,7 @@
     onclick={() => {}}
     value={stats.totalVisited}
     previous={oldStats.totalVisited}
-    isRunning={stats.nbWorkers}
+    isRunning={!!stats.nbWorkers}
     nbOfStats={nbOfReceivedStats} />
 
   <DashboardCard
@@ -109,14 +109,14 @@
     onclick={() => {}}
     value={stats.totalLinks}
     previous={oldStats.totalLinks}
-    isRunning={stats.nbWorkers}
+    isRunning={!!stats.nbWorkers}
     nbOfStats={nbOfReceivedStats}>
   </DashboardCard>
 
   <DashboardCard
     value={stats.totalErrors}
     previous={oldStats.totalErrors}
-    isRunning={stats.nbWorkers}
+    isRunning={!!stats.nbWorkers}
     nbOfStats={nbOfReceivedStats}
     onclick={() => {}}
     title="Errored"

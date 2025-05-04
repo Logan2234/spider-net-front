@@ -4,6 +4,7 @@
   import Modal from '$lib/components/base/modal.svelte';
   import Switch from '$lib/components/base/switch.svelte';
   import Tooltip from '$lib/components/base/tooltip.svelte';
+  import notifications from '$lib/stores/notifications';
 
   const divClass = 'p-6 min-h-24 justify-items-center';
 
@@ -102,6 +103,26 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <hr class="mt-4 w-3/4 border-gray-400/20" />
+
+  <div class={divClass}>
+    <h1 class={title}>Notifications</h1>
+    <Button
+      label="Ajouter une notification"
+      color="primary"
+      type="button"
+      onclick={() => {
+        notifications.addNotification('Notification de test en succès', 'success');
+        notifications.addNotification('Notification de test en info', 'info');
+        notifications.addNotification('Notification de test en warning', 'warning');
+        notifications.addNotification('Notification de test en erreur', 'error');
+        notifications.addNotification(
+          'Notification de test, très longue, mais alors, vraiment très très très très très longue !',
+          'info'
+        );
+      }} />
   </div>
 
   <Modal bind:open={modalOpen}>

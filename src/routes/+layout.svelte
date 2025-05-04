@@ -1,5 +1,6 @@
 <script lang="ts">
   import Nav from '$lib/components/nav/nav.svelte';
+  import NotificationsContainer from '$lib/components/notifications/notificationsContainer.svelte';
   import MainSearchBar from '$lib/components/searchBar/mainSearchBar.svelte';
   import { darkModeOn } from '$lib/stores/theme';
   import '../app.css';
@@ -29,6 +30,8 @@
     {@render children()}
   </main>
 </div>
+
+<NotificationsContainer />
 
 <style lang="postcss">
   ::-webkit-scrollbar {

@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Card from './base/card.svelte';
   import { formatNumber } from '$lib/utils/humanReadable';
+  import Card from './base/card.svelte';
 
   const {
     title = '',
@@ -15,7 +15,7 @@
     subtitle: string;
     onclick?: () => void;
     value: number;
-    previous: number;
+    previous?: number;
     nbOfStats?: number;
     isRunning?: boolean;
   } = $props();
@@ -31,10 +31,14 @@
   });
 
   const meanSpeed = $derived(
-    isRunning && nbOfStats > 0 ? Math.round(((value - first) / nbOfStats) * 100) / 100 : 0
+    isRunning && nbOfStats && nbOfStats > 0
+      ? Math.round(((value - first) / nbOfStats) * 100) / 100
+      : 0
   );
   const previousMeanSpeed = $derived(
-    isRunning && nbOfStats > 1 ? Math.round(((previous - first) / (nbOfStats - 1)) * 100) / 100 : 0
+    isRunning && nbOfStats && nbOfStats > 1
+      ? Math.round(((previous - first) / (nbOfStats - 1)) * 100) / 100
+      : 0
   );
 
   $effect(() => {

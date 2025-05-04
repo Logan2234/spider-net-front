@@ -45,5 +45,5 @@ export function createWebSocket<TReadMessage = string, TSendMessage = string>(
 
   connect();
 
-  return { subscribe: messages.subscribe, sendMessage, messages };
+  return { sendMessage, messages };
 }
