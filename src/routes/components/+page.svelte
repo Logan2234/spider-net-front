@@ -110,7 +110,7 @@
   <div class={divClass}>
     <h1 class={title}>Notifications</h1>
     <Button
-      label="Ajouter une notification"
+      label="Tester toutes les notifications"
       color="primary"
       type="button"
       onclick={() => {
@@ -122,6 +122,13 @@
           'Notification de test, très longue, mais alors, vraiment très très très très très longue !',
           'info'
         );
+      }} />
+    <Button
+      label="Notification avec un timeout d'une seconde"
+      color="primary"
+      type="button"
+      onclick={() => {
+        notifications.addNotification('Notification de test avec timeout', 'info', 1000);
       }} />
   </div>
 

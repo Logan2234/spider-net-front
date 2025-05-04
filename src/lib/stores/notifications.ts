@@ -29,8 +29,8 @@ export interface NotificationStore {
   addNotification: (
     message: string,
     type: NotificationType,
-    title?: string,
-    timeout?: number
+    timeout?: number,
+    title?: string
   ) => void;
   close: (id: string) => void;
 }
@@ -41,8 +41,8 @@ function createNotificationStore(): NotificationStore {
   function addNotification(
     message: string,
     type: NotificationType = DEFAULT_TYPE,
-    title?: string,
-    timeout?: number
+    timeout?: number,
+    title?: string
   ) {
     const newNotification: Notification = {
       id: crypto.randomUUID(),
@@ -56,7 +56,6 @@ function createNotificationStore(): NotificationStore {
   }
 
   function close(id: string) {
-    console.log(id);
     notifications.update((notifications) =>
       notifications.filter((notification) => notification.id !== id)
     );
