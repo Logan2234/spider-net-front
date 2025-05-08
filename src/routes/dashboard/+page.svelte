@@ -2,6 +2,7 @@
   import Button from '$lib/components/base/button.svelte';
   import DashboardCard from '$lib/components/dashboardCard.svelte';
   import type { StatsOverview } from '$lib/dtos/statsOverview';
+  import notifications from '$lib/stores/notifications';
   import { createWebSocket } from '$lib/stores/websocket';
   import { toHumanReadableMemory } from '$lib/utils/humanReadable';
   import { onMount } from 'svelte';
@@ -79,7 +80,9 @@
   <DashboardCard
     title="Domains"
     subtitle="Number of known domains"
-    onclick={() => {}}
+    onclick={() => {
+      notifications.showNotification('Not implemented yet', 'error', 2500);
+    }}
     value={stats.totalDomains}
     previous={oldStats.totalDomains}
     nbOfStats={nbOfReceivedStats}
@@ -88,7 +91,9 @@
   <DashboardCard
     title="Queue"
     subtitle="Number of urls in queue"
-    onclick={() => {}}
+    onclick={() => {
+      notifications.showNotification('Not implemented yet', 'error', 2500);
+    }}
     value={stats.totalInQueue}
     previous={oldStats.totalInQueue}
     isRunning={!!stats.nbWorkers}
@@ -97,7 +102,9 @@
   <DashboardCard
     title="Visited"
     subtitle="Number of visited urls"
-    onclick={() => {}}
+    onclick={() => {
+      notifications.showNotification('Not implemented yet', 'error', 2500);
+    }}
     value={stats.totalVisited}
     previous={oldStats.totalVisited}
     isRunning={!!stats.nbWorkers}
@@ -106,7 +113,9 @@
   <DashboardCard
     title="Links"
     subtitle="Number of links found"
-    onclick={() => {}}
+    onclick={() => {
+      notifications.showNotification('Not implemented yet', 'error', 2500);
+    }}
     value={stats.totalLinks}
     previous={oldStats.totalLinks}
     isRunning={!!stats.nbWorkers}
@@ -118,14 +127,18 @@
     previous={oldStats.totalErrors}
     isRunning={!!stats.nbWorkers}
     nbOfStats={nbOfReceivedStats}
-    onclick={() => {}}
+    onclick={() => {
+      notifications.showNotification('Not implemented yet', 'error', 2500);
+    }}
     title="Errored"
     subtitle="Number of errored links" />
 
   <DashboardCard
     title="Workers"
     subtitle="Number of workers"
-    onclick={() => {}}
+    onclick={() => {
+      notifications.showNotification('Not implemented yet', 'error', 2500);
+    }}
     value={stats.nbWorkers} />
 </div>
 

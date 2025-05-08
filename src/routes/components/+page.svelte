@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { goto } from '$app/navigation';
   import Button from '$lib/components/base/button.svelte';
   import Input from '$lib/components/base/input.svelte';
   import Modal from '$lib/components/base/modal.svelte';
@@ -114,11 +115,11 @@
       color="primary"
       type="button"
       onclick={() => {
-        notifications.addNotification('Notification de test en succès', 'success');
-        notifications.addNotification('Notification de test en info', 'info');
-        notifications.addNotification('Notification de test en warning', 'warning');
-        notifications.addNotification('Notification de test en erreur', 'error');
-        notifications.addNotification(
+        notifications.showNotification('Notification de test en succès', 'success');
+        notifications.showNotification('Notification de test en info', 'info');
+        notifications.showNotification('Notification de test en warning', 'warning');
+        notifications.showNotification('Notification de test en erreur', 'error');
+        notifications.showNotification(
           'Notification de test, très longue, mais alors, vraiment très très très très très longue !',
           'info'
         );
@@ -128,7 +129,20 @@
       color="primary"
       type="button"
       onclick={() => {
-        notifications.addNotification('Notification de test avec timeout', 'info', 1000);
+        notifications.showNotification('Notification de test avec timeout', 'info', 1000);
+      }} />
+  </div>
+
+  <hr class="mt-4 w-3/4 border-gray-400/20" />
+
+  <div class={divClass}>
+    <h1 class={title}>Table</h1>
+    <Button
+      label="Aller à la page de test pour la table"
+      color="primary"
+      type="button"
+      onclick={() => {
+        goto('/components/table');
       }} />
   </div>
 

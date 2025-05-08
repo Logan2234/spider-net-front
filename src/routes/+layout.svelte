@@ -22,11 +22,11 @@
 
 <div class="flex h-[calc(100vh-64px)]">
   <div
-    class="duration-300 {showNav ? 'translate-x-0 opacity-100' : '-translate-x-[75px] opacity-0'}">
+    class="duration-300 {showNav ? 'translate-x-0 opacity-100' : '-translate-x-[192px] opacity-0'}">
     <Nav />
   </div>
 
-  <main class="transition-all duration-300 {showNav ? 'ml-48' : 'ml-0'} overflow-auto">
+  <main class="flex-1 transition-all duration-300 {showNav ? 'ml-0' : '-ml-48'} overflow-auto">
     {@render children()}
   </main>
 </div>

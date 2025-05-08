@@ -69,7 +69,7 @@
 
 <svelte:window onkeydown={onWindowKeyDown} />
 
-<div class="z-1 flex-5/6 duration-200 {focusedOnUrlSearch ? 'translate-y-[5vh] scale-150' : ''}">
+<search class="z-1 flex-5/6 duration-200 {focusedOnUrlSearch ? 'translate-y-[5vh] scale-150' : ''}">
   <Input
     bind:focused={focusedOnUrlInput}
     bind:value
@@ -92,7 +92,7 @@
       <SearchResultBlock {error} />
     {/await}
   {/if}
-</div>
+</search>
 
 {#if focusedOnUrlSearch}
   <!-- svelte-ignore a11y_click_events_have_key_events -->

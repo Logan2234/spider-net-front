@@ -26,7 +26,7 @@ export interface NotificationStore {
     run: Subscriber<Notification[]>,
     invalidate?: (() => void) | undefined
   ) => Unsubscriber;
-  addNotification: (
+  showNotification: (
     message: string,
     type: NotificationType,
     timeout?: number,
@@ -61,7 +61,7 @@ function createNotificationStore(): NotificationStore {
     );
   }
 
-  return { addNotification, close, subscribe: notifications.subscribe };
+  return { showNotification: addNotification, close, subscribe: notifications.subscribe };
 }
 
 export default createNotificationStore();

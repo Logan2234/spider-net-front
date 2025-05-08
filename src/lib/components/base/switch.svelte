@@ -4,7 +4,7 @@
 
 <label class="relative cursor-pointer {style}">
     <!-- Hidden Checkbox -->
-    <input type="checkbox" bind:checked={value} class="peer sr-only" />
+    <input type="checkbox" bind:checked={value} class="sr-only" />
 
     <!-- Outer Track -->
     <div class="bg-dark-gray h-6 w-14 rounded-full duration-150"></div>

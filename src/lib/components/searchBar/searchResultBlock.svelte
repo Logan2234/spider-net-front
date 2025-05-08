@@ -26,7 +26,7 @@
   {:else}
     {#if !loading}
       <p class="m-2 text-center {error ? 'text-red-500 text-sm' : 'text-xs italic'}">
-        {error || 'No results'}
+        {error || 'No result'}
       </p>
     {/if}
   {/each}

@@ -12,7 +12,6 @@
         withValidationIndicators = true,
         class: style = '',
         containerClass = '',
-        onkeydown
     }: {
         placeholder?: string;
         type?: InputType;
@@ -24,7 +23,6 @@
         withValidationIndicators?: boolean;
         class?: string;
         containerClass?: string;
-        onkeydown?: (e: KeyboardEvent) => any;
     } = $props();
 
     const uid = $props.id();
@@ -39,7 +37,7 @@
         'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-dark-gray/15';
 
     const defaultStyle =
-        'bg-dark-gray/15 placeholder-dark-gray border-dark-gray rounded-md border px-3 py-2 duration-150';
+        'bg-dark-gray/15 placeholder-dark-gray border-dark-gray rounded-md border px-2 py-1.5 duration-150';
 
     const focusStyle =
         'focus:border-transparent! focus:outline-1 focus:outline-offset-2 focus:outline-dark-gray';
@@ -75,7 +73,6 @@
         has-invalid:has-not-placeholder-shown:after:content-['✗']`
             : ''}>
         <input
-            {onkeydown}
             id={uid}
             bind:value
             {placeholder}
@@ -84,6 +81,6 @@
             {required}
             onfocus={() => (focused = true)}
             onblur={() => (focused = false)}
-            class="peer {defaultStyle} {disabledStyle} {focusStyle} {invalidStyle} {validStyle} hover:bg-dark-gray/20 {style}" />
+            class="{defaultStyle} {disabledStyle} {focusStyle} {invalidStyle} {validStyle} hover:bg-dark-gray/20 {style}" />
     </span>
 </div>
