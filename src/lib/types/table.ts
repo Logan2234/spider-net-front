@@ -2,6 +2,7 @@ export interface IColumn {
   name: string;
   label: string;
   sortable?: boolean;
+  resizable?: boolean;
   minWidth?: string;
   maxWidth?: string;
   render?: (data: unknown, index: number) => string;

@@ -18,7 +18,7 @@
   const cols: IColumn[] = [
     { name: 'id', label: 'ID', minWidth: '200px' },
     { name: 'firstname', label: 'First Name', maxWidth: '100px' },
-    { name: 'lastname', label: 'Last Name' },
+    { name: 'lastname', label: 'Last Name', resizable: true },
     { name: 'email', label: 'Email' },
     { name: 'ip', label: 'IP Address' },
     {

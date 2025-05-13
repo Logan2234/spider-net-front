@@ -43,6 +43,12 @@
   let selectedLines: number[] = $state([]);
   let isSelecting = $state(false);
   let startSelectedIndex: number | null = $state(null);
+  let columns = $state(cols);
+
+  // Resize feature
+  let resizeColIndex: number | null = $state(null);
+  let startX: number | null = $state(null);
+  let startWidth: number | null = $state(null);
 
   const callOnLoad = async () => {
     isLoading = true;
@@ -118,6 +124,36 @@
       selectedLines = Array.from({ length: range[1] - range[0] + 1 }, (_, i) => range[0] + i);
     }
   };
+
+  const handleResizeMove = (e: MouseEvent) => {
+    if (resizeColIndex !== null && startX !== null && startWidth !== null) {
+      const deltaX = e.clientX - startX;
+      const newWidth = Math.max(startWidth + deltaX, 100); // Minimum width of 100px
+      columns[resizeColIndex].minWidth = `${newWidth}px`;
+      columns[resizeColIndex].maxWidth = `${newWidth}px`;
+    }
+  };
+
+  const handleResizeStart = (e: MouseEvent, index: number) => {
+    resizeColIndex = index;
+    startX = e.clientX;
+    startWidth = parseInt(columns[index].minWidth || columns[index].maxWidth || '0', 10);
+    document.addEventListener('mousemove', handleResizeMove);
+    document.addEventListener('mouseup', handleResizeEnd);
+  };
+
+  const handleResizeEnd = () => {
+    resizeColIndex = null;
+    startX = null;
+    startWidth = null;
+    document.removeEventListener('mousemove', handleResizeMove);
+    document.removeEventListener('mouseup', handleResizeEnd);
+  };
+
+  const handleAutoResize = (index: number) => {
+    columns[index].minWidth = cols[index].minWidth;
+    columns[index].maxWidth = cols[index].maxWidth;
+  };
 </script>
 
 {#if withGlobalSearch}
@@ -133,12 +169,12 @@
 <table class="block overflow-auto">
   <thead>
     <tr class="relative">
-      {#each cols as col, index}
+      {#each columns as col, index}
         <th
-          class="bg-main-color px-5 py-2 text-nowrap"
+          class="bg-main-color relative px-5 py-2 text-nowrap"
           style={`min-width: ${col.minWidth}; max-width: ${col.maxWidth}; ${stickFirstColumn && index === 0 ? 'position: sticky; left: 0' : ''}`}>
+          {col.label}
           {#if col.sortable}
-            {col.label}
             <button
               class="group cursor-pointer text-nowrap"
               onclick={() => handleOnSort(col.name)}
@@ -156,8 +192,12 @@
                   : ''}"
                 aria-label="Sort column"></i>
             </button>
-          {:else}
-            {col.label}
+          {/if}
+          {#if col.resizable}
+            <span
+              onmousedown={(e) => handleResizeStart(e, index)}
+              ondblclick={() => handleAutoResize(index)}
+              class="absolute top-0 right-0 h-full w-1.5 cursor-ew-resize hover:backdrop-brightness-110 duration-150"></span>
           {/if}
         </th>
       {/each}
@@ -170,11 +210,11 @@
     onmouseleave={onMouseUp}
     class={selectedLines.length > 1 ? 'select-none' : ''}>
     {#if !mounted || (isLoading && count === 0)}
-      <TableLoading {loadingRender} nbCols={cols.length} />
+      <TableLoading {loadingRender} nbCols={columns.length} />
     {:else if error !== null}
-      <TableError nbCols={cols.length} {error} />
+      <TableError nbCols={columns.length} {error} />
     {:else if hasNoData}
-      <TableNoData {noDataRender} nbCols={cols.length} />
+      <TableNoData {noDataRender} nbCols={columns.length} />
     {:else}
       {#each data as item, itemIndex}
         <tr
@@ -186,7 +226,7 @@
           onmousedown={(e) => onMouseDown(e, itemIndex)}
           onmousemove={(e) => onMouseMove(e, itemIndex)}
           ondblclick={() => onDoubleClick && onDoubleClick(item)}>
-          {#each cols as col, colIndex}
+          {#each columns as col, colIndex}
             <td
               class="bg-main-color px-5 py-2 group-hover:bg-[#3e4250] {selectedLines.some(
                 (lineIndex) => lineIndex === itemIndex
@@ -208,7 +248,7 @@
 
   <tfoot>
     <tr>
-      <td colspan={cols.length}>
+      <td colspan={columns.length}>
         {#if count > 0}
           <div class="flex gap-4 justify-self-end pr-4">
             <select bind:value={pageSize}>
