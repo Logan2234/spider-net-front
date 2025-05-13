@@ -1,5 +1,7 @@
 <script lang="ts">
+  import Switch from '$lib/components/base/switch.svelte';
   import Table from '$lib/components/table/table.svelte';
+  import notifications from '$lib/stores/notifications';
   import type { IColumn, TableOnLoadFunction } from '$lib/types/table';
   import { fakerFR as faker } from '@faker-js/faker';
 
@@ -57,6 +59,38 @@
       count: results.length
     };
   };
+
+  let selectable = $state(true);
+  let withDoubleClickFunction = $state(true);
+  let withGlobalSearch = $state(true);
+  let repeatHeaderInFooter = $state(false);
+  let stickyHeader = $state(false);
+  let stickFirstColumn = $state(false);
+
+  const onDoubleClick = (item: any) => {
+    notifications.showNotification(JSON.stringify(item, null, 2), 'info');
+  };
 </script>
 
-<Table {cols} {onLoad} stickFirstColumn selectable />
+<h1 class="text-2xl font-bold">Parameters</h1>
+
+<div class="flex gap-12">
+  <Switch bind:value={selectable} label="selectable" />
+  <Switch bind:value={withGlobalSearch} label="withGlobalSearch" />
+  <Switch bind:value={withDoubleClickFunction} label="withDoubleClickFunction" />
+  <Switch bind:value={repeatHeaderInFooter} label="repeatHeaderInFooter" />
+  <Switch bind:value={stickyHeader} label="stickyHeader" disabled />
+  <Switch bind:value={stickFirstColumn} label="stickFirstColumn" disabled />
+</div>
+
+<hr />
+
+<Table
+  {cols}
+  {onLoad}
+  {repeatHeaderInFooter}
+  {selectable}
+  {stickyHeader}
+  {stickFirstColumn}
+  {withGlobalSearch}
+  onDoubleClick={withDoubleClickFunction ? onDoubleClick : undefined} />

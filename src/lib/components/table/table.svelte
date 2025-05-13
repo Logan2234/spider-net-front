@@ -14,6 +14,8 @@
     repeatHeaderInFooter = false,
     stickyHeader = false,
     stickFirstColumn = false,
+    withGlobalSearch = false,
+    onDoubleClick,
     onLoad
   }: {
     cols: IColumn[];
@@ -23,6 +25,8 @@
     repeatHeaderInFooter?: boolean;
     stickyHeader?: boolean;
     stickFirstColumn?: boolean;
+    withGlobalSearch?: boolean;
+    onDoubleClick?: (item: any) => void;
     onLoad: TableOnLoadFunction;
   } = $props();
 
@@ -116,9 +120,15 @@
   };
 </script>
 
-<search>
-  <Input type="text" withValidationIndicators={false} placeholder="Search..." bind:value={search} />
-</search>
+{#if withGlobalSearch}
+  <search>
+    <Input
+      type="text"
+      withValidationIndicators={false}
+      placeholder="Search..."
+      bind:value={search} />
+  </search>
+{/if}
 
 <table class="block overflow-auto">
   <thead>
@@ -174,7 +184,8 @@
             ? 'bg-[#464b59]!'
             : ''}"
           onmousedown={(e) => onMouseDown(e, itemIndex)}
-          onmousemove={(e) => onMouseMove(e, itemIndex)}>
+          onmousemove={(e) => onMouseMove(e, itemIndex)}
+          ondblclick={() => onDoubleClick && onDoubleClick(item)}>
           {#each cols as col, colIndex}
             <td
               class="bg-main-color px-5 py-2 group-hover:bg-[#3e4250] {selectedLines.some(
