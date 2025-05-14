@@ -1,4 +1,5 @@
 <script lang="ts">
+  import notifications from '$lib/stores/notifications';
   import type { IColumn, IColumnSetting, TableOnLoadFunction } from '$lib/types/table';
   import { onMount } from 'svelte';
   import { scale, slide, type SlideParams } from 'svelte/transition';
@@ -17,6 +18,7 @@
     stickyHeader = false,
     stickFirstColumn = false,
     withGlobalSearch = false,
+    tableName = '',
     onDoubleClick,
     onLoad
   }: {
@@ -28,12 +30,13 @@
     stickyHeader?: boolean;
     stickFirstColumn?: boolean;
     withGlobalSearch?: boolean;
+    tableName?: string;
     onDoubleClick?: (item: any) => void;
     onLoad: TableOnLoadFunction;
   } = $props();
 
   const initColumns = () => {
-    const savedSettings = localStorage.getItem('test');
+    const savedSettings = localStorage.getItem(tableName);
     if (!savedSettings) {
       columns = cols;
       return;
@@ -53,8 +56,6 @@
       const findCol = cols.find((col) => col.name === colSetting.name)!;
       return { ...findCol, hidden: colSetting.hidden };
     });
-
-    console.log(columns);
   };
 
   let mounted = $state(false);
@@ -201,7 +202,7 @@
 
   const saveTableSettings = () => {
     localStorage.setItem(
-      'test',
+      tableName,
       JSON.stringify(
         columns.map((col: IColumn) => {
           return { name: col.name, hidden: col.hidden };
@@ -212,6 +213,10 @@
     );
 
     showSettingsPopover = false;
+    notifications.showNotification(
+      'Table layout saved! This layout will be loaded when reloading.',
+      'success'
+    );
   };
 
   const resetTableSettings = () => {
@@ -270,22 +275,24 @@
             {col.label}
           </div>
         {/each}
-        <div class="mt-2 flex justify-around">
-          <Button
-            type="button"
-            label="Reset"
-            color="secondary"
-            size="small"
-            class="basis-2/5 grayscale-100"
-            onclick={resetTableSettings} />
-          <Button
-            type="button"
-            label="Save"
-            color="primary"
-            size="small"
-            class="basis-2/5 grayscale-100"
-            onclick={saveTableSettings} />
-        </div>
+        {#if tableName}
+          <div class="mt-2 flex justify-around">
+            <Button
+              type="button"
+              label="Reset"
+              color="secondary"
+              size="small"
+              class="basis-2/5 grayscale-100"
+              onclick={resetTableSettings} />
+            <Button
+              type="button"
+              label="Save"
+              color="primary"
+              size="small"
+              class="basis-2/5 grayscale-100"
+              onclick={saveTableSettings} />
+          </div>
+        {/if}
       </div>
     {/if}
   </div>

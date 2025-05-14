@@ -93,4 +93,5 @@
   {stickyHeader}
   {stickFirstColumn}
   {withGlobalSearch}
+  tableName="test"
   onDoubleClick={withDoubleClickFunction ? onDoubleClick : undefined} />
