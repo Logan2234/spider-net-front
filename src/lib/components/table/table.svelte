@@ -38,7 +38,7 @@
   const initColumns = () => {
     const savedSettings = localStorage.getItem(tableName);
     if (!savedSettings) {
-      columns = cols;
+      columns = cols.sort((a, b) => (a.command ? 1 : b.command ? -1 : 0));
       return;
     }
 
@@ -48,7 +48,7 @@
       savedSettingsParsed.length !== cols.length ||
       !savedSettingsParsed.every((savedCol) => cols.map((col) => col.name).includes(savedCol.name))
     ) {
-      columns = cols;
+      columns = cols.sort((a, b) => (a.command ? 1 : b.command ? -1 : 0));
       return;
     }
 
@@ -220,7 +220,7 @@
   };
 
   const resetTableSettings = () => {
-    columns = cols;
+    columns = cols.sort((a, b) => (a.command ? 1 : b.command ? -1 : 0));
     showSettingsPopover = false;
   };
 </script>
@@ -249,31 +249,33 @@
         transition:scale={{ start: 0.95, duration: 100, opacity: 0 }}
         class="bg-main-color absolute z-1 mt-2 items-center rounded-2xl border-2 p-2 text-center">
         {#each columns as col, index}
-          <div
-            role="menuitem"
-            tabindex="-1"
-            class="flex items-center gap-3 px-4 py-1"
-            draggable={dragColIndex === index ? true : false}
-            ondragover={(e) => e.preventDefault()}
-            ondrop={() => handleDrop(index)}>
-            <button
-              class="cursor-pointer rounded-full not-hover:opacity-75 active:scale-95"
-              title="Drag to sort column"
-              aria-label="Drag to sort {col.label} column"
-              onmouseenter={() => (dragColIndex = index)}
-              onmouseleave={() => (dragColIndex = null)}>
-              <i class="fa-solid fa-ellipsis-vertical"></i>
-              <i class="fa-solid fa-ellipsis-vertical -ml-0.5"></i>
-            </button>
-            <button
-              aria-label={(col.hidden ? 'Show ' : 'Hide ') + col.label + ' column'}
-              class="w-5 cursor-pointer rounded-full duration-150 not-hover:opacity-75 active:scale-95"
-              title={col.hidden ? 'Show column' : 'Hide column'}
-              onclick={() => (col.hidden = !col.hidden)}>
-              <i class="fa-regular {col.hidden ? 'fa-eye-slash' : 'fa-eye'}"></i>
-            </button>
-            {col.label}
-          </div>
+          {#if !col.command}
+            <div
+              role="menuitem"
+              tabindex="-1"
+              class="flex items-center gap-3 px-4 py-1"
+              draggable={dragColIndex === index ? true : false}
+              ondragover={(e) => e.preventDefault()}
+              ondrop={() => handleDrop(index)}>
+              <button
+                class="cursor-pointer rounded-full not-hover:opacity-75 active:scale-95"
+                title="Drag to sort column"
+                aria-label="Drag to sort {col.label} column"
+                onmouseenter={() => (dragColIndex = index)}
+                onmouseleave={() => (dragColIndex = null)}>
+                <i class="fa-solid fa-ellipsis-vertical"></i>
+                <i class="fa-solid fa-ellipsis-vertical -ml-0.5"></i>
+              </button>
+              <button
+                aria-label={(col.hidden ? 'Show ' : 'Hide ') + col.label + ' column'}
+                class="w-5 cursor-pointer rounded-full duration-150 not-hover:opacity-75 active:scale-95"
+                title={col.hidden ? 'Show column' : 'Hide column'}
+                onclick={() => (col.hidden = !col.hidden)}>
+                <i class="fa-regular {col.hidden ? 'fa-eye-slash' : 'fa-eye'}"></i>
+              </button>
+              {col.label}
+            </div>
+          {/if}
         {/each}
         {#if tableName}
           <div class="mt-2 flex justify-around">

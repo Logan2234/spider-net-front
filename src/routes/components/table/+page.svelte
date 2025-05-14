@@ -21,6 +21,7 @@
     { name: 'lastname', label: 'Last Name', resizable: true },
     { name: 'email', label: 'Email' },
     { name: 'ip', label: 'IP Address' },
+    { command: true, name: '', render: () => 'Voir' },
     {
       name: 'alive',
       label: 'Alive',

@@ -1,11 +1,12 @@
 export interface IColumn {
   name: string;
-  label: string;
+  label?: string;
   hidden?: boolean;
   sortable?: boolean;
   resizable?: boolean;
   minWidth?: string;
   maxWidth?: string;
+  command?: boolean;
   render?: (data: unknown, index: number) => string;
 }
 
