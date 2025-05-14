@@ -83,7 +83,7 @@
   <Switch bind:value={stickFirstColumn} label="stickFirstColumn" disabled />
 </div>
 
-<hr />
+<hr class="my-4" />
 
 <Table
   {cols}
