@@ -5,7 +5,7 @@
   import type { IColumn, TableOnLoadFunction } from '$lib/types/table';
   import { fakerFR as faker } from '@faker-js/faker';
 
-  const data = Array.from({ length: 1000 }, (_, i) => ({
+  const data = Array.from({ length: 100 }, (_, i) => ({
     id: i,
     firstname: faker.person.firstName(),
     lastname: faker.person.lastName(),
@@ -37,7 +37,7 @@
   ];
 
   const onLoad: TableOnLoadFunction = async (page, pageSize, sort, search, filter) => {
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
     const results1 = search
       ? data.filter((elem) => elem.firstname.includes(search) || elem.lastname.includes(search))
@@ -64,6 +64,7 @@
   let selectable = $state(true);
   let withDoubleClickFunction = $state(true);
   let withGlobalSearch = $state(true);
+  let infiniteScroll = $state(true);
   let repeatHeaderInFooter = $state(false);
   let stickyHeader = $state(false);
   let stickFirstColumn = $state(false);
@@ -80,6 +81,7 @@
   <Switch bind:value={withGlobalSearch} label="withGlobalSearch" />
   <Switch bind:value={withDoubleClickFunction} label="withDoubleClickFunction" />
   <Switch bind:value={repeatHeaderInFooter} label="repeatHeaderInFooter" />
+  <Switch bind:value={infiniteScroll} label="infiniteScroll" />
   <Switch bind:value={stickyHeader} label="stickyHeader" disabled />
   <Switch bind:value={stickFirstColumn} label="stickFirstColumn" disabled />
 </div>
@@ -94,5 +96,6 @@
   {stickyHeader}
   {stickFirstColumn}
   {withGlobalSearch}
+  {infiniteScroll}
   tableName="test"
   onDoubleClick={withDoubleClickFunction ? onDoubleClick : undefined} />

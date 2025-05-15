@@ -13,12 +13,13 @@
     cols = [],
     selectable = false,
     noDataRender = 'No result',
-    loadingRender = 'Loading ...',
+    loadingRender = 'Loading...',
     repeatHeaderInFooter = false,
     stickyHeader = false,
     stickFirstColumn = false,
     withGlobalSearch = false,
     tableName = '',
+    infiniteScroll = false,
     onDoubleClick,
     onLoad
   }: {
@@ -31,6 +32,7 @@
     stickFirstColumn?: boolean;
     withGlobalSearch?: boolean;
     tableName?: string;
+    infiniteScroll?: boolean;
     onDoubleClick?: (item: any) => void;
     onLoad: TableOnLoadFunction;
   } = $props();
@@ -72,6 +74,7 @@
   let isSelecting = $state(false);
   let startSelectedIndex: number | null = $state(null);
   let columns: IColumn[] = $state([]);
+  let loadMoreObserverElement: HTMLElement | null = $state(null);
 
   // Resize feature
   let resizeColIndex: number | null = $state(null);
@@ -84,12 +87,13 @@
 
   const toggleColAnim: SlideParams = { axis: 'x', duration: 200 };
 
-  const callOnLoad = async () => {
+  const callOnLoad = async (keepPreviousData: boolean) => {
     isLoading = true;
 
     try {
       const loadResults = await onLoad(page, pageSize, { by: sortBy, dir: sortDir }, search, null);
-      data = loadResults.results;
+      data =
+        infiniteScroll && keepPreviousData ? data.concat(loadResults.results) : loadResults.results;
       count = loadResults.count;
     } catch (err: any) {
       error = err.message;
@@ -99,14 +103,35 @@
   };
 
   onMount(() => {
-    callOnLoad();
+    callOnLoad(false);
     initColumns();
     mounted = true;
   });
 
   $effect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          page++;
+        }
+      },
+      { root: null, threshold: 1.0 }
+    );
+
+    if (loadMoreObserverElement) {
+      observer.observe(loadMoreObserverElement);
+    }
+
+    return () => {
+      if (loadMoreObserverElement) {
+        observer.unobserve(loadMoreObserverElement);
+      }
+    };
+  });
+
+  $effect(() => {
     if (page && pageSize) {
-      callOnLoad();
+      callOnLoad(page > 1);
     }
   });
 
@@ -118,7 +143,7 @@
     }
 
     sortBy = name;
-    await callOnLoad();
+    await callOnLoad(false);
   };
 
   const totalPages = $derived(Math.ceil(count / data.length));
@@ -352,7 +377,7 @@
     onmouseup={onMouseUp}
     onmouseleave={onMouseUp}
     class={selectedLines.length > 1 ? 'select-none' : ''}>
-    {#if !mounted || (isLoading && count === 0)}
+    {#if !infiniteScroll && (!mounted || (isLoading && count === 0))}
       <TableLoading {loadingRender} nbCols={columns.length} />
     {:else if error !== null}
       <TableError nbCols={columns.length} {error} />
@@ -360,6 +385,9 @@
       <TableNoData {noDataRender} nbCols={columns.length} />
     {:else}
       {#each data as item, itemIndex}
+        {#if infiniteScroll && itemIndex === data.length - 3 && data.length && data.length !== count}
+          <tr bind:this={loadMoreObserverElement}></tr>
+        {/if}
         <tr
           class="group hover:bg-[#3e4250] {selectedLines.some(
             (lineIndex) => lineIndex === itemIndex
@@ -395,9 +423,9 @@
   </tbody>
 
   <tfoot>
-    <tr>
-      <td colspan={columns.length}>
-        {#if count > 0}
+    {#if !infiniteScroll && count > 0}
+      <tr>
+        <td colspan={columns.length}>
           <div class="flex gap-4 justify-self-end pr-4">
             <select bind:value={pageSize}>
               <option class="dark:text-font-secondary" value={5}>5</option>
@@ -411,6 +439,7 @@
               onclick={() => page--}
               disabled={page === 1}
               aria-label="Previous page"
+              title="Previous page"
               class="not-disabled:cursor-pointer disabled:opacity-50">
               <i class="fa-solid fa-arrow-left"></i>
             </button>
@@ -418,13 +447,26 @@
               onclick={() => page++}
               disabled={page === totalPages}
               aria-label="Next page"
+              title="Next page"
               class="not-disabled:cursor-pointer disabled:opacity-50">
               <i class="fa-solid fa-arrow-right"></i>
             </button>
           </div>
-        {/if}
-      </td>
-    </tr>
+          <div class="w-full py-4 text-center"></div>
+        </td>
+      </tr>
+    {/if}
+    {#if infiniteScroll}
+      {#if data.length && data.length === count}
+        <tr>
+          <td class="py-4 text-center italic opacity-75" colspan={columns.length}>
+            No more elements to load
+          </td>
+        </tr>
+      {:else if isLoading}
+        <TableLoading {loadingRender} nbCols={columns.length} />
+      {/if}
+    {/if}
   </tfoot>
 
   <!-- TODO: factoriser le code pour cette partie avec un THead -->
