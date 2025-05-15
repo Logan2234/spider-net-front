@@ -82,7 +82,6 @@
     isLoading = true;
 
     try {
-      console.log(sortBy, sortDir);
       const loadResults = await onLoad(page, pageSize, { by: sortBy, dir: sortDir }, search, null);
       data =
         infiniteScroll && keepPreviousData ? data.concat(loadResults.results) : loadResults.results;
@@ -164,13 +163,9 @@
       selectedLines = Array.from({ length: range[1] - range[0] + 1 }, (_, i) => range[0] + i);
     }
   };
-
-  const resetTableSettings = () => {
-    columns = cols.sort((a, b) => (a.command ? 1 : b.command ? -1 : 0));
-  };
 </script>
 
-<TableBar {tableName} bind:columns {withGlobalSearch} bind:search {resetTableSettings} />
+<TableBar bind:columns bind:search {withGlobalSearch} {tableName} {cols} />
 
 <table class="block overflow-auto">
   <Thead bind:columns bind:sortBy bind:sortDir {cols} {stickFirstColumn} {callOnLoad} />

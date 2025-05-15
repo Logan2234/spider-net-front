@@ -6,17 +6,17 @@
   import { scale } from 'svelte/transition';
 
   let {
+    cols = [],
     columns = $bindable([]),
     withGlobalSearch = false,
     tableName = '',
-    search = $bindable(''),
-    resetTableSettings
+    search = $bindable('')
   }: {
+    cols: IColumn[];
     columns: IColumn[];
     withGlobalSearch: boolean;
     tableName: string;
     search: string;
-    resetTableSettings: () => void;
   } = $props();
 
   // Resize feature
@@ -75,7 +75,7 @@
   };
 
   const reset = () => {
-    resetTableSettings();
+    columns = cols.sort((a, b) => (a.command ? 1 : b.command ? -1 : 0));
     showSettingsPopover = false;
   };
 </script>
