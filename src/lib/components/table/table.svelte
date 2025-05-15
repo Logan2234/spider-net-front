@@ -6,6 +6,7 @@
   import TableError from './components/tableError.svelte';
   import TableLoading from './components/tableLoading.svelte';
   import TableNoData from './components/tableNoData.svelte';
+  import Tfoot from './components/tfoot.svelte';
   import Thead from './components/thead.svelte';
 
   let {
@@ -126,7 +127,6 @@
     }
   });
 
-  const totalPages = $derived(Math.ceil(count / data.length));
   const hasNoData = $derived(mounted && !isLoading && count === 0);
 
   const onMouseDown = (e: MouseEvent, index: number) => {
@@ -225,52 +225,14 @@
     {/if}
   </tbody>
 
-  <tfoot>
-    {#if !infiniteScroll && count > 0}
-      <tr>
-        <td colspan={columns.length}>
-          <div class="flex gap-4 justify-self-end pr-4">
-            <select bind:value={pageSize}>
-              <option class="dark:text-font-secondary" value={5}>5</option>
-              <option class="dark:text-font-secondary" value={10}>10</option>
-              <option class="dark:text-font-secondary" value={25}>25</option>
-              <option class="dark:text-font-secondary" value={50}>50</option>
-              <option class="dark:text-font-secondary" value={100}>100</option>
-            </select>
-            <span>Page {page} of {totalPages}</span>
-            <button
-              onclick={() => page--}
-              disabled={page === 1}
-              aria-label="Previous page"
-              title="Previous page"
-              class="not-disabled:cursor-pointer disabled:opacity-50">
-              <i class="fa-solid fa-arrow-left"></i>
-            </button>
-            <button
-              onclick={() => page++}
-              disabled={page === totalPages}
-              aria-label="Next page"
-              title="Next page"
-              class="not-disabled:cursor-pointer disabled:opacity-50">
-              <i class="fa-solid fa-arrow-right"></i>
-            </button>
-          </div>
-          <div class="w-full py-4 text-center"></div>
-        </td>
-      </tr>
-    {/if}
-    {#if infiniteScroll}
-      {#if data.length && data.length === count}
-        <tr>
-          <td class="py-4 text-center italic opacity-75" colspan={columns.length}>
-            No more elements to load
-          </td>
-        </tr>
-      {:else if isLoading}
-        <TableLoading {loadingRender} nbCols={columns.length} />
-      {/if}
-    {/if}
-  </tfoot>
+  <Tfoot
+    bind:page
+    bind:pageSize
+    lengthLoadedData={data.length}
+    columnLength={columns.length}
+    {count}
+    {infiniteScroll}
+    {loadingRender} />
 
   {#if repeatHeaderInFooter}
     <Thead bind:columns bind:sortBy bind:sortDir {cols} {stickFirstColumn} {callOnLoad} />
