@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { subscribeScrolling } from '$lib/stores/scroll';
+  import type { ContextMenuActions } from '$lib/types/contextMenu';
+
   let {
     left = '',
     right = '',
@@ -12,13 +15,15 @@
     top?: string;
     bottom?: string;
     isVisible: boolean;
-    actions: { label: string; onclick: (e: MouseEvent) => void; icon?: string; class?: string }[];
+    actions: ContextMenuActions;
   } = $props();
+
+  subscribeScrolling((_) => (isVisible = false));
 </script>
 
 {#if isVisible}
   <div
-    class="border-font-primary/40 bg-font-secondary/50 absolute flex flex-col gap-1 rounded-lg border-2 p-2 text-left text-sm whitespace-nowrap"
+    class="border-font-primary/40 bg-font-secondary/75 absolute flex flex-col gap-1 rounded-lg border-2 p-2 text-left text-sm whitespace-nowrap"
     style={`left: ${left}; right: ${right}; top: ${top}; bottom: ${bottom};`}>
     {#each actions as { label, icon, class: style, onclick }}
       <button

@@ -1,3 +1,5 @@
+import type { ContextMenuActions } from './contextMenu';
+
 interface TableProps {
   cols: IColumn[];
   selectable?: boolean;
@@ -9,6 +11,8 @@ interface TableProps {
   withGlobalSearch?: boolean;
   tableName?: string;
   infiniteScroll?: boolean;
+  contextMenuActions?: ContextMenuActions;
+  selectedLines?: unknown[];
   onDoubleClick?: (item: unknown) => void;
   onLoad: TableOnLoadFunction;
 }

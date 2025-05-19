@@ -2,6 +2,7 @@
   import Nav from '$lib/components/nav/nav.svelte';
   import NotificationsContainer from '$lib/components/notifications/notificationsContainer.svelte';
   import MainSearchBar from '$lib/components/searchBar/mainSearchBar.svelte';
+  import { scrollingOn } from '$lib/stores/scroll';
   import { darkModeOn } from '$lib/stores/theme';
   import '../app.css';
   let { children, data } = $props();
@@ -26,7 +27,9 @@
     <Nav />
   </div>
 
-  <main class="flex-1 transition-all duration-300 {showNav ? 'ml-0' : '-ml-48'} overflow-auto">
+  <main
+    class="flex-1 transition-all duration-300 {showNav ? 'ml-0' : '-ml-48'} overflow-auto"
+    onscroll={scrollingOn}>
     {@render children()}
   </main>
 </div>

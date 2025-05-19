@@ -1,6 +1,8 @@
 <script lang="ts">
+  import { Vector2D } from '$lib/types/drawableElement';
   import type { IColumn, IColumnSetting, TableProps } from '$lib/types/table';
   import { onMount } from 'svelte';
+  import ContextMenu from '../base/contextMenu.svelte';
   import TableBar from './components/tableBar.svelte';
   import TableError from './components/tableError.svelte';
   import TableLoading from './components/tableLoading.svelte';
@@ -20,6 +22,8 @@
     withGlobalSearch = false,
     tableName = '',
     infiniteScroll = false,
+    selectedLines = $bindable([]),
+    contextMenuActions = [],
     onDoubleClick,
     onLoad
   }: TableProps = $props();
@@ -65,11 +69,13 @@
   let isLoading = $state(false);
   let count = $state(0);
   let data: any[] = $state([]);
-  let selectedLines: number[] = $state([]);
+  let selected: number[] = $state([]);
   let isSelecting = $state(false);
   let startSelectedIndex: number | null = $state(null);
   let columns: IColumn[] = $state([]);
   let loadMoreObserverElement: HTMLElement | null = $state(null);
+  let contextMenuVisible: boolean = $state(false);
+  let contextMenuPos: Vector2D = $state(Vector2D.zero);
 
   const callOnLoad = async (keepPreviousData: boolean) => {
     isLoading = true;
@@ -91,6 +97,10 @@
     callOnLoad(false);
     initColumns();
     mounted = true;
+  });
+
+  $effect(() => {
+    selectedLines = data.filter((_, idx) => selected.includes(idx));
   });
 
   $effect(() => {
@@ -131,29 +141,35 @@
 
   const hasNoData = $derived(mounted && !isLoading && count === 0);
 
+  const onContextMenu = (e: MouseEvent, index: number) => {
+    e.preventDefault();
+    contextMenuPos = new Vector2D(e.clientX + 10, e.clientY + 10);
+    if (!selected.includes(index)) selected = [index];
+    contextMenuVisible = true;
+  };
+
   const onMouseDown = (e: MouseEvent, index: number) => {
-    // TODO clic droit
     if (!selectable || e.button !== 0) return;
 
-    if (selectedLines.indexOf(index) !== -1) {
+    if (selected.indexOf(index) !== -1) {
       if (e.ctrlKey) {
-        selectedLines = selectedLines.filter((i) => i !== index);
+        selected = selected.filter((i) => i !== index);
       } else {
         startSelectedIndex = null;
-        selectedLines = [];
+        selected = [];
       }
       return;
     }
 
     if (e.ctrlKey) {
-      selectedLines.push(index);
+      selected.push(index);
     } else if (e.shiftKey && startSelectedIndex) {
       const range = [startSelectedIndex, index].sort((a, b) => a - b);
-      selectedLines = Array.from({ length: range[1] - range[0] + 1 }, (_, i) => range[0] + i);
+      selected = Array.from({ length: range[1] - range[0] + 1 }, (_, i) => range[0] + i);
     } else {
       startSelectedIndex = index;
       isSelecting = true;
-      selectedLines = [index];
+      selected = [index];
     }
   };
 
@@ -164,7 +180,7 @@
   const onMouseMove = (e: MouseEvent, index: number) => {
     if (isSelecting && startSelectedIndex !== null) {
       const range = [startSelectedIndex, index].sort((a, b) => a - b);
-      selectedLines = Array.from({ length: range[1] - range[0] + 1 }, (_, i) => range[0] + i);
+      selected = Array.from({ length: range[1] - range[0] + 1 }, (_, i) => range[0] + i);
     }
   };
 </script>
@@ -178,7 +194,7 @@
   <tbody
     onmouseup={onMouseUp}
     onmouseleave={onMouseUp}
-    class={selectedLines.length > 1 ? 'select-none' : ''}>
+    class={selected.length > 1 ? 'select-none' : ''}>
     {#if !infiniteScroll && (!mounted || (isLoading && count === 0))}
       <TableLoading {loadingRender} nbCols={columns.length} />
     {:else if error !== null}
@@ -192,9 +208,10 @@
         {/if}
         <tr
           aria-rowindex={rowIndex}
-          class="group hover:bg-[#3e4250] {selectedLines.includes(rowIndex) ? 'bg-[#464b59]!' : ''}"
+          class="group hover:bg-[#3e4250] {selected.includes(rowIndex) ? 'bg-[#464b59]!' : ''}"
           onmousedown={(e) => onMouseDown(e, rowIndex)}
           onmousemove={(e) => onMouseMove(e, rowIndex)}
+          oncontextmenu={(e) => onContextMenu(e, rowIndex)}
           ondblclick={() => onDoubleClick && onDoubleClick(item)}>
           {#each columns as col, colIndex}
             <Td
@@ -202,7 +219,7 @@
               {colIndex}
               {stickFirstColumn}
               {item}
-              isSelected={selectedLines.includes(rowIndex)} />
+              isSelected={selected.includes(rowIndex)} />
           {/each}
         </tr>
       {/each}
@@ -222,3 +239,12 @@
     <Thead bind:columns bind:sortBy bind:sortDir {cols} {stickFirstColumn} {callOnLoad} />
   {/if}
 </table>
+
+<!-- TODO: placement du contextmenu -->
+{#if contextMenuActions?.length}
+  <ContextMenu
+    left="{contextMenuPos.x}px"
+    top="{contextMenuPos.y}px"
+    bind:isVisible={contextMenuVisible}
+    actions={contextMenuActions} />
+{/if}

@@ -62,17 +62,43 @@
   };
 
   let selectable = $state(true);
-  let withDoubleClickFunction = $state(true);
   let withGlobalSearch = $state(true);
   let infiniteScroll = $state(true);
   let repeatHeaderInFooter = $state(false);
   let withTableName = $state(true);
+  let withDoubleClick = $state(true);
+  let withContextMenu = $state(true);
   let stickyHeader = $state(false);
   let stickFirstColumn = $state(false);
+  let selectedLines = $state([]);
 
   const onDoubleClick = (item: any) => {
     notifications.showNotification(JSON.stringify(item, null, 2), 'info');
   };
+
+  const contextMenuActions = [
+    {
+      label: 'Action 1',
+      icon: 'fa-mouse',
+      onclick: () => {
+        notifications.showNotification('Action 1', 'success', 2500, 'Test');
+      }
+    },
+    {
+      label: 'Action 2',
+      icon: 'fa-bed',
+      onclick: () => {
+        notifications.showNotification('Toh!', 'error', 2500);
+      }
+    },
+    {
+      label: 'Number of selected',
+      icon: 'fa-dollar',
+      onclick: () => {
+        notifications.showNotification(selectedLines.length + ' lines selected', 'info');
+      }
+    }
+  ];
 </script>
 
 <h1 class="text-2xl font-bold">Parameters</h1>
@@ -80,10 +106,11 @@
 <div class="flex gap-12">
   <Switch bind:value={selectable} label="selectable" />
   <Switch bind:value={withGlobalSearch} label="withGlobalSearch" />
-  <Switch bind:value={withDoubleClickFunction} label="withDoubleClickFunction" />
   <Switch bind:value={repeatHeaderInFooter} label="repeatHeaderInFooter" />
   <Switch bind:value={infiniteScroll} label="infiniteScroll" />
   <Switch bind:value={withTableName} label="withTableName" />
+  <Switch bind:value={withDoubleClick} label="withDoubleClick" />
+  <Switch bind:value={withContextMenu} label="withContextMenu" />
   <Switch bind:value={stickyHeader} label="stickyHeader" disabled />
   <Switch bind:value={stickFirstColumn} label="stickFirstColumn" disabled />
 </div>
@@ -99,5 +126,7 @@
   {stickFirstColumn}
   {withGlobalSearch}
   {infiniteScroll}
+  bind:selectedLines
+  contextMenuActions={withContextMenu ? contextMenuActions : []}
   tableName={withTableName ? 'test' : undefined}
-  onDoubleClick={withDoubleClickFunction ? onDoubleClick : undefined} />
+  onDoubleClick={withDoubleClick ? onDoubleClick : undefined} />
