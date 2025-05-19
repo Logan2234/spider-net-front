@@ -3,6 +3,7 @@
   import { page } from '$app/state';
   import { Graph } from '$lib/classes/graph';
   import { Node } from '$lib/classes/node';
+  import ContextMenu from '$lib/components/base/contextMenu.svelte';
   import Modal from '$lib/components/base/modal.svelte';
   import Tooltip from '$lib/components/base/tooltip.svelte';
   import { GRAPH_RENDER_INTERVAL } from '$lib/constants/graph';
@@ -14,6 +15,7 @@
   const { data }: PageProps = $props();
 
   let showTooltip = $state('');
+  let showContextMenu = $state(false);
   let openContextMenu: { node: Node; pos: Vector2D } | null = $state(null);
   let clickedNode: Node | null = $state(null);
 
@@ -66,9 +68,8 @@
             open('https://' + node.label, '_blank');
             break;
           case 2:
-            openContextMenu = openContextMenu
-              ? null
-              : { node, pos: new Vector2D(e.clientX, e.clientY) };
+            openContextMenu = { node, pos: new Vector2D(e.clientX, e.clientY) };
+            showContextMenu = true;
             break;
           default:
             break;
@@ -108,33 +109,13 @@
   {/snippet}
 </Modal>
 
-{#if !!openContextMenu}
-  <div
-    class="border-font-primary/40 bg-font-secondary/50 absolute flex flex-col gap-1 rounded-lg border-2 p-2 text-left text-sm whitespace-nowrap"
-    style={`left: ${openContextMenu.pos.x + 10}px; top: ${openContextMenu.pos.y + 10}px;`}>
-    <button
-      class="hover:bg-dark-gray/30 flex cursor-pointer items-baseline gap-2 rounded-lg p-2 duration-150"
-      onclick={() => {}}>
-      <i class="fa-solid fa-chart-simple w-4"></i>
-      Open stats
-    </button>
-    <button
-      class="hover:bg-dark-gray/30 flex cursor-pointer items-baseline gap-2 rounded-lg p-2 duration-150"
-      onclick={() => {}}>
-      <i class="fa-solid fa-hexagon-nodes w-4"></i>
-      Open graph
-    </button>
-    <button
-      class="hover:bg-dark-gray/30 flex cursor-pointer items-baseline gap-2 rounded-lg p-2 duration-150"
-      onclick={() => {}}>
-      <i class="fa-solid fa-arrow-up-right-from-square w-4"></i>
-      Open link in new tab
-    </button>
-    <button
-      class="hover:bg-dark-gray/30 flex cursor-pointer items-baseline gap-2 rounded-lg p-2 duration-150"
-      onclick={() => {}}>
-      <i class="fa-solid fa-clipboard w-4"></i>
-      Copy link
-    </button>
-  </div>
-{/if}
+<ContextMenu
+  bind:isVisible={showContextMenu}
+  left="{openContextMenu?.pos.x ? openContextMenu.pos.x + 10 : 0}px"
+  top="{openContextMenu?.pos.y ? openContextMenu.pos.y + 10 : 0}px"
+  actions={[
+    { label: 'Open stats', icon: 'fa-chart-simple', onclick: () => {} },
+    { label: 'Open graph', icon: 'fa-hexagon-nodes', onclick: () => {} },
+    { label: 'Open link in new tab', icon: 'fa-arrow-up-right-from-square', onclick: () => {} },
+    { label: 'Copy link', icon: 'fa-clipboard', onclick: () => {} }
+  ]} />

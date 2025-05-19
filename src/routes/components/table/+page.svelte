@@ -66,6 +66,7 @@
   let withGlobalSearch = $state(true);
   let infiniteScroll = $state(true);
   let repeatHeaderInFooter = $state(false);
+  let withTableName = $state(true);
   let stickyHeader = $state(false);
   let stickFirstColumn = $state(false);
 
@@ -82,6 +83,7 @@
   <Switch bind:value={withDoubleClickFunction} label="withDoubleClickFunction" />
   <Switch bind:value={repeatHeaderInFooter} label="repeatHeaderInFooter" />
   <Switch bind:value={infiniteScroll} label="infiniteScroll" />
+  <Switch bind:value={withTableName} label="withTableName" />
   <Switch bind:value={stickyHeader} label="stickyHeader" disabled />
   <Switch bind:value={stickFirstColumn} label="stickFirstColumn" disabled />
 </div>
@@ -97,5 +99,5 @@
   {stickFirstColumn}
   {withGlobalSearch}
   {infiniteScroll}
-  tableName="test"
+  tableName={withTableName ? 'test' : undefined}
   onDoubleClick={withDoubleClickFunction ? onDoubleClick : undefined} />

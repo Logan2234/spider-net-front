@@ -37,4 +37,4 @@ type TableOnLoadFunction = (
   filter: unknown | null
 ) => Promise<{ results: unknown[]; count: number }>;
 
-export type { IColumn, IColumnSetting, TableProps };
+export type { IColumn, IColumnSetting, TableOnLoadFunction, TableProps };
