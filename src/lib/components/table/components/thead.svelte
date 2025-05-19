@@ -72,6 +72,7 @@
     {#each columns as col, index}
       {#if !col.hidden}
         <th
+          scope="col"
           transition:slide={toggleColAnim}
           class="bg-main-color relative px-5 py-2 text-nowrap"
           style={`min-width: ${col.minWidth}; max-width: ${col.maxWidth}; ${stickFirstColumn && index === 0 ? 'position: sticky; left: 0' : ''}`}>

@@ -1,11 +1,11 @@
 <script lang="ts">
-  import type { IColumn, IColumnSetting, TableOnLoadFunction } from '$lib/types/table';
+  import type { IColumn, IColumnSetting, TableProps } from '$lib/types/table';
   import { onMount } from 'svelte';
-  import { slide, type SlideParams } from 'svelte/transition';
   import TableBar from './components/tableBar.svelte';
   import TableError from './components/tableError.svelte';
   import TableLoading from './components/tableLoading.svelte';
   import TableNoData from './components/tableNoData.svelte';
+  import Td from './components/td.svelte';
   import Tfoot from './components/tfoot.svelte';
   import Thead from './components/thead.svelte';
 
@@ -22,42 +22,37 @@
     infiniteScroll = false,
     onDoubleClick,
     onLoad
-  }: {
-    cols: IColumn[];
-    selectable?: boolean;
-    noDataRender?: (() => string) | string;
-    loadingRender?: (() => string) | string;
-    repeatHeaderInFooter?: boolean;
-    stickyHeader?: boolean;
-    stickFirstColumn?: boolean;
-    withGlobalSearch?: boolean;
-    tableName?: string;
-    infiniteScroll?: boolean;
-    onDoubleClick?: (item: any) => void;
-    onLoad: TableOnLoadFunction;
-  } = $props();
+  }: TableProps = $props();
+
+  const getSortedColumnw = () => [...cols].sort((a, b) => (a.command ? 1 : b.command ? -1 : 0));
+
+  const isValidSettings = (saved: any[], cols: IColumn[]): boolean =>
+    saved.length === cols.length && saved.every((col) => cols.some((c) => c.name === col.name));
 
   const initColumns = () => {
     const savedSettings = localStorage.getItem(tableName);
+    const sortedCols = getSortedColumnw();
+
     if (!savedSettings) {
-      columns = cols.sort((a, b) => (a.command ? 1 : b.command ? -1 : 0));
+      columns = sortedCols;
       return;
     }
 
-    const savedSettingsParsed: any[] = JSON.parse(savedSettings);
+    try {
+      const savedSettingsParsed: any[] = JSON.parse(savedSettings);
 
-    if (
-      savedSettingsParsed.length !== cols.length ||
-      !savedSettingsParsed.every((savedCol) => cols.map((col) => col.name).includes(savedCol.name))
-    ) {
-      columns = cols.sort((a, b) => (a.command ? 1 : b.command ? -1 : 0));
-      return;
+      if (!isValidSettings(savedSettingsParsed, sortedCols)) {
+        columns = sortedCols;
+        return;
+      }
+
+      columns = savedSettingsParsed.map((colSetting: IColumnSetting) => {
+        const findCol = sortedCols.find((col) => col.name === colSetting.name)!;
+        return { ...findCol, hidden: colSetting.hidden };
+      });
+    } catch {
+      columns = sortedCols;
     }
-
-    columns = savedSettingsParsed.map((colSetting: IColumnSetting) => {
-      const findCol = cols.find((col) => col.name === colSetting.name)!;
-      return { ...findCol, hidden: colSetting.hidden };
-    });
   };
 
   let mounted = $state(false);
@@ -76,8 +71,6 @@
   let columns: IColumn[] = $state([]);
   let loadMoreObserverElement: HTMLElement | null = $state(null);
 
-  const toggleColAnim: SlideParams = { axis: 'x', duration: 200 };
-
   const callOnLoad = async (keepPreviousData: boolean) => {
     isLoading = true;
 
@@ -87,7 +80,8 @@
         infiniteScroll && keepPreviousData ? data.concat(loadResults.results) : loadResults.results;
       count = loadResults.count;
     } catch (err: any) {
-      error = err.message;
+      console.error('Load erorr:', err);
+      error = err.message ?? 'An unexpected error occured';
     } finally {
       isLoading = false;
     }
@@ -106,7 +100,7 @@
           page++;
         }
       },
-      { root: null, threshold: 1.0 }
+      { threshold: 1.0 }
     );
 
     if (loadMoreObserverElement) {
@@ -126,9 +120,19 @@
     }
   });
 
+  let searchTimeout: NodeJS.Timeout;
+
+  $effect(() => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      page = 1;
+    }, 300);
+  });
+
   const hasNoData = $derived(mounted && !isLoading && count === 0);
 
   const onMouseDown = (e: MouseEvent, index: number) => {
+    // TODO clic droit
     if (!selectable || e.button !== 0) return;
 
     if (selectedLines.indexOf(index) !== -1) {
@@ -182,38 +186,23 @@
     {:else if hasNoData}
       <TableNoData {noDataRender} nbCols={columns.length} />
     {:else}
-      {#each data as item, itemIndex}
-        {#if infiniteScroll && itemIndex === data.length - 3 && data.length && data.length !== count}
+      {#each data as item, rowIndex}
+        {#if infiniteScroll && rowIndex === data.length - 3 && data.length && data.length !== count}
           <tr bind:this={loadMoreObserverElement}></tr>
         {/if}
         <tr
-          class="group hover:bg-[#3e4250] {selectedLines.some(
-            (lineIndex) => lineIndex === itemIndex
-          )
-            ? 'bg-[#464b59]!'
-            : ''}"
-          onmousedown={(e) => onMouseDown(e, itemIndex)}
-          onmousemove={(e) => onMouseMove(e, itemIndex)}
+          aria-rowindex={rowIndex}
+          class="group hover:bg-[#3e4250] {selectedLines.includes(rowIndex) ? 'bg-[#464b59]!' : ''}"
+          onmousedown={(e) => onMouseDown(e, rowIndex)}
+          onmousemove={(e) => onMouseMove(e, rowIndex)}
           ondblclick={() => onDoubleClick && onDoubleClick(item)}>
           {#each columns as col, colIndex}
-            {#if !col.hidden}
-              <td
-                transition:slide={toggleColAnim}
-                class="bg-main-color px-5 py-2 group-hover:bg-[#3e4250] {selectedLines.some(
-                  (lineIndex) => lineIndex === itemIndex
-                )
-                  ? 'bg-[#464b59]!'
-                  : ''}"
-                style={`min-width: ${col.minWidth}; max-width: ${col.maxWidth}; ${stickFirstColumn && colIndex === 0 ? 'position: sticky; left: 0' : ''}`}>
-                <div transition:slide={toggleColAnim}>
-                  {#if col.render}
-                    {@html col.render(item, colIndex)}
-                  {:else}
-                    {item[col.name]}
-                  {/if}
-                </div>
-              </td>
-            {/if}
+            <Td
+              {col}
+              {colIndex}
+              {stickFirstColumn}
+              {item}
+              isSelected={selectedLines.includes(rowIndex)} />
           {/each}
         </tr>
       {/each}
