@@ -21,6 +21,8 @@
   subscribeScrolling((_) => (isVisible = false));
 </script>
 
+<svelte:document onclick={() => (isVisible = false)} />
+
 {#if isVisible}
   <div
     class="border-font-primary/40 bg-font-secondary/75 absolute flex flex-col gap-1 rounded-lg border-2 p-2 text-left text-sm whitespace-nowrap"
